@@ -1,0 +1,156 @@
+Row,SampleID,Set,Species,Date_sampling,Date_extraction,Type,Tissue,sample_vol_uL,CW_mm,Tag_no_Crab_ID,Sex,Dev,Shell,Chela_Clutch,Haul_Station,Latitude,Longitude,Time_storage_mo,Refract_PPT,Refract_D2020,Notes
+1,BESFA.23.3.001,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+2,BESFA.23.3.002,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+3,BESFA.23.3.003,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+4,BESFA.23.3.004,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+5,BESFA.23.3.005,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+6,BESFA.23.3.006,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+7,BESFA.23.3.007,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+8,BESFA.23.3.008,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+9,BESFA.23.3.009,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+10,BESFA.23.3.010,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,58.2,LV01,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+11,BESFA.23.3.011,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+12,BESFA.23.3.012,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+13,BESFA.23.3.013,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+14,BESFA.23.3.014,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+15,BESFA.23.3.015,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+16,BESFA.23.3.016,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+17,BESFA.23.3.017,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+18,BESFA.23.3.018,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+19,BESFA.23.3.019,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+20,BESFA.23.3.020,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,67.3,LV02,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+21,BESFA.23.3.021,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+22,BESFA.23.3.022,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+23,BESFA.23.3.023,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+24,BESFA.23.3.024,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+25,BESFA.23.3.025,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+26,BESFA.23.3.026,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+27,BESFA.23.3.027,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+28,BESFA.23.3.028,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+29,BESFA.23.3.029,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+30,BESFA.23.3.030,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,61.7,LV03,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+31,BESFA.23.3.031,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+32,BESFA.23.3.032,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+33,BESFA.23.3.033,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+34,BESFA.23.3.034,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+35,BESFA.23.3.035,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+36,BESFA.23.3.036,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+37,BESFA.23.3.037,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+38,BESFA.23.3.038,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+39,BESFA.23.3.039,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+40,BESFA.23.3.040,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,64.2,LV04,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+41,BESFA.23.3.041,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+42,BESFA.23.3.042,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+43,BESFA.23.3.043,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+44,BESFA.23.3.044,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+45,BESFA.23.3.045,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+46,BESFA.23.3.046,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+47,BESFA.23.3.047,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+48,BESFA.23.3.048,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+49,BESFA.23.3.049,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+50,BESFA.23.3.050,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,64.5,LV05,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+51,BESFA.23.3.051,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+52,BESFA.23.3.052,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+53,BESFA.23.3.053,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+54,BESFA.23.3.054,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+55,BESFA.23.3.055,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+56,BESFA.23.3.056,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+57,BESFA.23.3.057,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+58,BESFA.23.3.058,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+59,BESFA.23.3.059,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+60,BESFA.23.3.060,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,63.2,LV06,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+61,BESFA.23.3.061,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+62,BESFA.23.3.062,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+63,BESFA.23.3.063,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+64,BESFA.23.3.064,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+65,BESFA.23.3.065,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+66,BESFA.23.3.066,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+67,BESFA.23.3.067,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+68,BESFA.23.3.068,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+69,BESFA.23.3.069,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+70,BESFA.23.3.070,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,65,LV07,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+71,BESFA.23.3.071,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+72,BESFA.23.3.072,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+73,BESFA.23.3.073,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+74,BESFA.23.3.074,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+75,BESFA.23.3.075,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+76,BESFA.23.3.076,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+77,BESFA.23.3.077,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+78,BESFA.23.3.078,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+79,BESFA.23.3.079,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+80,BESFA.23.3.080,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,62,LV08,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+81,BESFA.23.3.081,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+82,BESFA.23.3.082,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+83,BESFA.23.3.083,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+84,BESFA.23.3.084,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+85,BESFA.23.3.085,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+86,BESFA.23.3.086,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+87,BESFA.23.3.087,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+88,BESFA.23.3.088,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+89,BESFA.23.3.089,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+90,BESFA.23.3.090,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,51.6,LV09,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+91,BESFA.23.3.091,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HL,200,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+92,BESFA.23.3.092,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HL,200,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+93,BESFA.23.3.093,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HL,200,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+94,BESFA.23.3.094,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HL,200,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+95,BESFA.23.3.095,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HL,200,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+96,BESFA.23.3.096,Lab Validation,Carcinus maenas,2023.06.20,2023.06.21,Tissue,HP,NA,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,0,NA,NA,
+97,BESFA.23.3.097,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,Tissue,HP,NA,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+98,BESFA.23.3.098,Lab Validation,Carcinus maenas,2023.06.20,2023.08.30,DTS,HP,NA,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,2,NA,NA,
+99,BESFA.23.3.099,Lab Validation,Carcinus maenas,2023.06.20,2023.90.29,DTS,HP,NA,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,3,NA,NA,
+100,BESFA.23.3.100,Lab Validation,Carcinus maenas,2023.06.20,2023.11.29,DTS,HP,NA,56.4,LV10,M,NA,firm,NA,NA,43.8599,-69.5781,5,NA,NA,
+101,BESFA.23.4.01.HL,Field Validation,Chionoecetes opilio,2023.07.09,2024.04.02,DTS,HL,200,65.73,FV01,M,mat,NA,13.32,137_G24,56.99695,-172.02157,8,NA,NA,
+102,BESFA.23.4.01.HP,Field Validation,Chionoecetes opilio,2023.07.09,2024.04.02,Tissue,HP,NA,65.73,FV01,M,mat,NA,13.32,137_G24,56.99695,-172.02157,8,NA,NA,
+103,BESFA.23.4.02.HL,Field Validation,Chionoecetes opilio,2023.07.11,2024.04.02,DTS,HL,200,89.52,FV02,M,mat,NA,21.98,145_M23,58.99585,-171.77935,8,NA,NA,"Histo, molec crab #3"
+104,BESFA.23.4.02.HP,Field Validation,Chionoecetes opilio,2023.07.11,2024.04.02,Tissue,HP,NA,89.52,FV02,M,mat,NA,21.98,145_M23,58.99585,-171.77935,8,NA,NA,"Histo, molec crab #3"
+105,BESFA.23.4.03.HL,Field Validation,Chionoecetes opilio,2023.07.11,2024.04.02,DTS,HL,200,112.9,FV03,M,mat,NA,28.55,145_M23,58.99585,-171.77935,8,NA,NA,"Histo, molec crab #4"
+106,BESFA.23.4.03.HP,Field Validation,Chionoecetes opilio,2023.07.11,2024.04.02,Tissue,HP,NA,112.9,FV03,M,mat,NA,28.55,145_M23,58.99585,-171.77935,8,NA,NA,"Histo, molec crab #4"
+107,BESFA.23.4.04.HL,Field Validation,Chionoecetes opilio,2023.07.23,2024.04.02,DTS,HL,200,104.77,FV04,M,mat,NA,27.74,185_O28,59.65707,-175.12083,8,NA,NA,"Histo, molec crab #13"
+108,BESFA.23.4.04.HP,Field Validation,Chionoecetes opilio,2023.07.23,2024.04.02,Tissue,HP,NA,104.77,FV04,M,mat,NA,27.74,185_O28,59.65707,-175.12083,8,NA,NA,"Histo, molec crab #13"
+109,BESFA.23.4.05.HL,Field Validation,Chionoecetes opilio,2023.07.23,2024.04.02,DTS,HL,200,106.16,FV05,M,mat,NA,25.92,185_O28,59.65707,-175.12083,8,NA,NA,"Histo, molec crab #14"
+110,BESFA.23.4.05.HP,Field Validation,Chionoecetes opilio,2023.07.23,2024.04.02,Tissue,HP,NA,106.16,FV05,M,mat,NA,25.92,185_O28,59.65707,-175.12083,8,NA,NA,"Histo, molec crab #14"
+111,BESFA.23.4.06.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,69.07,FV06,M,imm,NA,12.68,191_R27,60.65801,-174.8269,8,NA,NA,
+112,BESFA.23.4.06.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,69.07,FV06,M,imm,NA,12.68,191_R27,60.65801,-174.8269,8,NA,NA,
+113,BESFA.23.4.06.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,69.07,FV06,M,imm,NA,12.68,191_R27,60.65801,-174.8269,8,NA,NA,
+114,BESFA.23.4.07.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,64.59,FV07,M,imm,NA,10.91,191_R27,60.65801,-174.8269,8,NA,NA,
+115,BESFA.23.4.07.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,64.59,FV07,M,imm,NA,10.91,191_R27,60.65801,-174.8269,8,NA,NA,
+116,BESFA.23.4.07.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,64.59,FV07,M,imm,NA,10.91,191_R27,60.65801,-174.8269,8,NA,NA,
+117,BESFA.23.4.08.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,52.57,FV08,M,imm,NA,8.38,191_R27,60.65801,-174.8269,8,NA,NA,
+118,BESFA.23.4.08.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,52.57,FV08,M,imm,NA,8.38,191_R27,60.65801,-174.8269,8,NA,NA,
+119,BESFA.23.4.08.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,52.57,FV08,M,imm,NA,8.38,191_R27,60.65801,-174.8269,8,NA,NA,
+120,BESFA.23.4.09.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,59.65,FV09,M,imm,NA,10.57,191_R27,60.65801,-174.8269,8,NA,NA,
+121,BESFA.23.4.09.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,59.65,FV09,M,imm,NA,10.57,191_R27,60.65801,-174.8269,8,NA,NA,
+122,BESFA.23.4.09.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,59.65,FV09,M,imm,NA,10.57,191_R27,60.65801,-174.8269,8,NA,NA,
+123,BESFA.23.4.10.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,50.57,FV10,M,imm,NA,7.72,191_R27,60.65801,-174.8269,8,NA,NA,
+124,BESFA.23.4.10.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,50.57,FV10,M,imm,NA,7.72,191_R27,60.65801,-174.8269,8,NA,NA,
+125,BESFA.23.4.10.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,50.57,FV10,M,imm,NA,7.72,191_R27,60.65801,-174.8269,8,NA,NA,
+126,BESFA.23.4.11.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,53.92,FV11,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+127,BESFA.23.4.11.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,53.92,FV11,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+128,BESFA.23.4.11.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,53.92,FV11,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+129,BESFA.23.4.12.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,57.29,FV12,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+130,BESFA.23.4.12.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,57.29,FV12,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+131,BESFA.23.4.12.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,57.29,FV12,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+132,BESFA.23.4.13.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,51.36,FV13,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+133,BESFA.23.4.13.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,51.36,FV13,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+134,BESFA.23.4.13.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,51.36,FV13,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+135,BESFA.23.4.14.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,54.38,FV14,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+136,BESFA.23.4.14.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,54.38,FV14,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+137,BESFA.23.4.14.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,54.38,FV14,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+138,BESFA.23.4.15.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,50.86,FV15,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+139,BESFA.23.4.15.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,50.86,FV15,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+140,BESFA.23.4.15.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,50.86,FV15,F,mat,NA,C415,191_R27,60.65801,-174.8269,8,NA,NA,"orange, uneyed, 3/4 full"
+141,BESFA.23.4.16.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,50.96,FV16,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+142,BESFA.23.4.16.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,50.96,FV16,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+143,BESFA.23.4.16.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,50.96,FV16,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+144,BESFA.23.4.17.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,53.82,FV17,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+145,BESFA.23.4.17.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,53.82,FV17,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+146,BESFA.23.4.17.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,53.82,FV17,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+147,BESFA.23.4.18.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,51.54,FV18,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+148,BESFA.23.4.18.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,51.54,FV18,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+149,BESFA.23.4.18.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,51.54,FV18,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+150,BESFA.23.4.19.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,52.98,FV19,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+151,BESFA.23.4.19.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,52.98,FV19,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+152,BESFA.23.4.19.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,52.98,FV19,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+153,BESFA.23.4.20.HL,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HL,200,48.67,FV20,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+154,BESFA.23.4.20.HP1,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,DTS,HP,NA,48.67,FV20,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
+155,BESFA.23.4.20.HP2,Field Validation,Chionoecetes opilio,2023.07.25,2024.04.02,Tissue,HP,NA,48.67,FV20,F,imm,NA,C000,191_R27,60.65801,-174.8269,8,NA,NA,"immature, no eggs"
