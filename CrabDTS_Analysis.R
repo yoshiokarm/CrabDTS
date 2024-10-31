@@ -194,6 +194,24 @@ df_LV_quantFA = left_join(df_LV_quantFA,
                           by = join_by(Tag_no_Crab_ID, Tissue))
 rm(banana1)
 
+df_LV_quantFA_MMSD = 
+  df_LV_quantFA |>
+  group_by(Tissue, Type, Time_storage_mo) |>
+  summarise(mean = mean(count),
+            med = median(count),
+            stdev = sd(count))
+
+df_LV_quantFA_diff = 
+  df_LV_quantFA |>
+  filter(Type == "DTS") |>
+  pivot_wider(id_cols = c(Tag_no_Crab_ID, Tissue),
+              names_from = Time_storage_mo,
+              values_fill = 0, # NA means no FA were detected
+              values_from = count) |>
+  group_by(Tissue) |>
+  summarise(mean = mean(`2` - `5`),
+            stdev = sd(`2` - `5`))
+
 df_LV_quantFA$prop = df_LV_quantFA$count / df_LV_quantFA$baseline
 
 ggplot(aes(x = Time_storage_mo,
