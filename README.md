@@ -2,7 +2,7 @@
 
 ------------------------------------------------------------------------
 
-Repository for analyses in Yoshioka and Groner, *Ambient-Temperature Preservation of Fatty Acids in Marine Crabs for Remote Field Collections*.
+Repository for analyses in Yoshioka and Groner, *Enabling remote field sampling of fatty acids in marine crab tissues with ambient-temperature preservation*.
 
 ------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@ Repository for analyses in Yoshioka and Groner, *Ambient-Temperature Preservatio
 
 -   CrabDTS_FA_data.csv, fatty acid data for all samples used in this study,
 
--   CrabDTS_Copeman_etal_2021, summarized 16:0 and 16:1n7 data from *Chionoecetes* crab from Table 1 of Copeman LA, Ryer CH, Eisner LB, Nielsen JM, Spencer ML, Iseri PJ, Ottmar ML (2021) Decreased lipid storage in juvenile Bering Sea crabs (*Chionoecetes* spp.) in a warm (2014) compared to a cold (2012) year on the southeastern Bering Sea. Polar Biol 44:1883--1901. https://doi.org/10.1007/s00300-021-02926-0. Used for comparison of 16:0/16:1n7 logratios between studies.
+-   CrabDTS_Copeman_etal_2021, summarized 16:0 and 16:1n7 data from *Chionoecetes* crab from Table 1 of Copeman LA, Ryer CH, Eisner LB, Nielsen JM, Spencer ML, Iseri PJ, Ottmar ML (2021) Decreased lipid storage in juvenile Bering Sea crabs (*Chionoecetes* spp.) in a warm (2014) compared to a cold (2012) year on the southeastern Bering Sea. Polar Biol 44:1883--1901. <https://doi.org/10.1007/s00300-021-02926-0>. Used for comparison of 16:0/16:1n7 logratios between studies.
 
 ------------------------------------------------------------------------
 
