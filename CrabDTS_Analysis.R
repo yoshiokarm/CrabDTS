@@ -9,7 +9,7 @@
 # 1: Getting Started -----------------------------------------------------------
 # > 1.1: Clear everything ----- 
 # clear workspace
-# rm(list=ls()) # Currently commented out to prevent folks from clearing things
+rm(list=ls()) # Currently commented out to prevent folks from clearing things
 # clear console
 cat("\014")
 
@@ -23,6 +23,7 @@ library(gridExtra)
 library(viridis) # colorblind-friendly and perceptually uniform plotting
 library(glmmTMB) # mixed effects glms 
 library(DHARMa) # GLM residual diagnostics
+library(vegan) # multivariate analyses
 library(easyCODA) # Compositional data, needed for G&G logratio approach
 library(patchwork) # combining plots
 library(stringr) # working with strings
@@ -143,16 +144,91 @@ FA_labeller = c(
   C18.3n3c = "ALA",
   C20.4n6c = "ARA",
   C20.5n3 = "EPA",
-  C22.6n3 = "DHA",
+  C22.6n3c = "DHA",
   C22.4n6c = "Adrenic",
   C14.0 = "Myristic",
   C16.0 = "Palmitic",
   C18.0 = "Stearic",
   C18.4n3 = "SDA",
-  C22.5n3 = "DPA",
+  C22.5n3c = "DPA",
   C20.1n9c = "20:1n9",
   C22.1n9c = "22:1n9",
   C17.0 = "17:0"
+)
+
+FA_labeller_LIPIDMAPS = c(
+  C10.0 = "10:0",
+  C11.0 = "11:0",
+  C12.0 = "12:0",
+  C12.1n7c = "12:1(5)",
+  C13.0 = "13:0",
+  C14.0 = "14:0",
+  C14.1n5c = "14:1(9)",
+  C15.0 = "15:0",
+  C16.0 = "16:0",
+  C16.1n7c = "16:1(9)",
+  C16.2n4 = "16:2(9,12)",
+  C17.0 = "17:0",
+  C17.1n7c = "17:1(10)",
+  C16.4n3 = "16:4(4,7,10,13)",
+  C16.4n1 = "16:4(6,9,12,15)",
+  C18.0 = "18:0",
+  C18.1n9c = "18:1(9)",
+  C18.1n7c = "18:1(11)",
+  C18.2n6c = "18:2(9,12)",
+  C18.3n3c = "18:3(9,12,15)",
+  C18.4n3 = "18:4(6,9,12,15)",
+  C20.0 = "20:0",
+  C20.1n9c = "20:1(11)",
+  C20.1n9.7c = "20:1",
+  C20.2n6c = "20:2(11,14",
+  C20.3n6 = "20:3(8,11,14)",
+  C20.4n6c = "20:4(5,8,11,14)",
+  C20.5n3 = "20:5(5,8,11,14,17)",
+  C22.0 = "22:0",
+  C22.1n9c = "22:1(13)",
+  C22.4n6c = "22:4(7,10,13,16)",
+  C22.5n3c = "22:5(7,10,13,16,19)",
+  C22.6n3c = "22:6(4,7,10,13,16,19)",
+  OBCFA = "OBCFA"
+  )
+
+# Same as above, but new line for long FA names
+FA_labeller_LIPIDMAPS2 = c(
+  C10.0 = "10:0",
+  C11.0 = "11:0",
+  C12.0 = "12:0",
+  C12.1n7c = "12:1(5)",
+  C13.0 = "13:0",
+  C14.0 = "14:0",
+  C14.1n5c = "14:1(9)",
+  C15.0 = "15:0",
+  C16.0 = "16:0",
+  C16.1n7c = "16:1(9)",
+  C16.2n4 = "16:2(9,12)",
+  C17.0 = "17:0",
+  C17.1n7c = "17:1(10)",
+  C16.4n3 = "16:4(4,7,\n10,13)",
+  C16.4n1 = "16:4(6,9,\n12,15)",
+  C18.0 = "18:0",
+  C18.1n9c = "18:1(9)",
+  C18.1n7c = "18:1(11)",
+  C18.2n6c = "18:2(9,12)",
+  C18.3n3c = "18:3(9,12,15)",
+  C18.4n3 = "18:4(6,9,\n12,15)",
+  C20.0 = "20:0",
+  C20.1n9c = "20:1(11)",
+  C20.1n9.7c = "20:1",
+  C20.2n6c = "20:2(11,14",
+  C20.3n6 = "20:3(8,11,14)",
+  C20.4n6c = "20:4(5,8,11,14)",
+  C20.5n3 = "20:5(5,8,\n11,14,17)",
+  C22.0 = "22:0",
+  C22.1n9c = "22:1(13)",
+  C22.4n6c = "22:4(7,10,\n13,16)",
+  C22.5n3c = "22:5(7,10,\n13,16,19)",
+  C22.6n3c = "22:6(4,7,\n10,13,16,19)",
+  OBCFA = "OBCFA"
 )
 
 TypeMo_labeller = c(
@@ -245,6 +321,140 @@ summary(glm_LV_quantFA)
 simulateResiduals(glm_LV_quantFA,
                   plot = TRUE)
 
+# Summarize proportional change
+df_LV_quantFA |>
+  group_by(Tissue, Type, Time_storage_mo) |>
+  summarize(M = 1 - mean(prop),
+            SE = sd(prop)/sqrt(n()))
+
+# Plot FAs over time
+plot_TFA_LV = 
+  df_LV |>
+  mutate(perc = ifelse(is.nan(perc),
+                       0,
+                       perc)) |>
+  group_by(Type, Tissue, Time_storage_mo, FA) |>
+  summarize(perc_M = mean(perc, na.rm = TRUE),
+            perc_SE = sd(perc, na.rm = TRUE) / sqrt(n())) |>
+  filter(FA != "C20.5n3" &
+           FA != "C16.0") |>ggplot() +
+  geom_errorbar(aes(x = Time_storage_mo,
+                    ymin = perc_M - 1.96 * perc_SE,
+                    ymax = perc_M + 1.96 * perc_SE,
+                    group = Type),
+                position = position_dodge(width = 0.9),
+                width = 0) +
+  geom_point(aes(x = Time_storage_mo,
+                 y = perc_M,
+                 color = Type),
+             size = 0.5,
+             position = position_dodge(width = 0.9)) +
+  scale_color_manual(values = c("firebrick",
+                                "dodgerblue"),
+                     labels = c("DTS",
+                                "FRZ")) +
+  coord_cartesian(ylim = c(0, 50)) +
+  labs(y = "% TFA",
+       x = "Storage time, mo") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = unit(8, "pt")),
+        axis.text = element_text(size = unit(6, "pt")),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        legend.title = element_text(size = unit(6, "pt")),
+        legend.text = element_text(size = unit(6, "pt")),
+        panel.border = element_rect(color = "grey30", fill = NA),
+        strip.text = element_text(angle = 90, hjust = 0, size = unit(8, "pt")),
+        panel.spacing.x = unit(2, "pt"),
+        strip.text.y = element_blank(),
+        legend.position = "bottom") +
+  facet_grid(Tissue ~ FA,
+             labeller = as_labeller(c(c(HL = "hemolymph",
+                                        HP = "hepatopancreas"),
+                                      FA_labeller_LIPIDMAPS))) 
+plot_TFA_LV
+
+plot_EPA_LV = 
+  df_LV |>
+  mutate(perc = ifelse(is.nan(perc),
+                       0,
+                       perc)) |>
+  group_by(Type, Tissue, Time_storage_mo, FA) |>
+  summarize(perc_M = mean(perc, na.rm = TRUE),
+            perc_SE = sd(perc, na.rm = TRUE) / sqrt(n())) |>
+  filter(FA == "C20.5n3" |
+           FA == "C16.0") |>
+  ggplot() +
+  geom_errorbar(aes(x = Time_storage_mo,
+                    ymin = perc_M - 1.96 * perc_SE,
+                    ymax = perc_M + 1.96 * perc_SE,
+                    group = Type),
+                position = position_dodge(width = 0.9),
+                width = 0) +
+  geom_point(aes(x = Time_storage_mo,
+                 y = perc_M,
+                 color = Type),
+             size = 0.5,
+             position = position_dodge(width = 0.9)) +
+  scale_color_manual(values = c("firebrick",
+                                "dodgerblue"),
+                     labels = c("DTS",
+                                "FRZ")) +
+  scale_y_continuous(limits = c(0, 75)) +
+  labs(y = NULL,
+       x = NULL) +
+  theme_minimal() +
+  theme(axis.title = element_text(size = unit(8, "pt")),
+        axis.text = element_text(size = unit(6, "pt")),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        legend.title = element_text(size = unit(6, "pt")),
+        legend.text = element_text(size = unit(6, "pt")),
+        panel.border = element_rect(color = "grey30", fill = NA),
+        panel.spacing.x = unit(2, "pt"),
+        strip.text = element_text(angle = 90, hjust = 0, size = unit(8, "pt")),
+        legend.position = "bottom") +
+  facet_grid(Tissue ~ FA,
+             labeller = as_labeller(c(c(HL = "hemolymph",
+                                        HP = "hepatopancreas"),
+                                      FA_labeller_LIPIDMAPS))) 
+plot_EPA_LV
+
+plot_TFA_LV + 
+  plot_EPA_LV +
+  plot_layout(widths = c(16, 1),
+              guides = "collect",
+              axis_titles = "collect") &
+  theme(legend.position = "bottom")
+
+ggsave("CrabDTS_FigSX1.tiff",
+       device = "tiff",
+       height = 5,
+       width = 10,
+       dpi = 150)
+
+# Corresponding table
+df_LV_sum = df_LV |>
+  mutate(perc = ifelse(is.nan(perc),
+                       0,
+                       perc)) |>
+  group_by(Type, Tissue, Time_storage_mo, FA) |>
+  summarise(M = mean(perc),
+            SD = sd(perc),
+            MSD = paste0(sprintf("%.2f", round(M, 3)),
+                         " (",
+                         sprintf("%.2f", round(SD, 3)),
+                         ")"))
+df_LV_sum_w = 
+  df_LV_sum |>
+  mutate(FA = str_replace_all(FA,
+                              FA_labeller_LIPIDMAPS)) |>
+  pivot_wider(names_from = FA,
+              values_from = MSD,
+              id_cols = c(Type, Tissue, Time_storage_mo))
+
+# write.csv(df_LV_sum_w,
+#           "df_LV_sum_w.csv",
+#           row.names = FALSE)
+
 # > > 2.1.2: Hemolymph lipid content -----
 df_LV_HL_quant = 
   df_LV_HL |>
@@ -318,6 +528,30 @@ wilcox.test(df_FV_quantFA[df_FV_quantFA$Tissue == "HP",]$count,
             df_FV_quantFA[df_FV_quantFA$Tissue == "HL",]$count,
             paired = TRUE)
 
+# Table
+df_FV_sum = df_FV |>
+  mutate(perc = ifelse(is.nan(perc),
+                       0,
+                       perc)) |>
+  group_by(Type, Sex, Dev, Tissue, FA) |>
+  summarise(M = mean(perc),
+            SD = sd(perc),
+            MSD = paste0(sprintf("%.2f", round(M, 3)),
+                         " (",
+                         sprintf("%.2f", round(SD, 3)),
+                         ")"))
+df_FV_sum_w = 
+  df_FV_sum |>
+  mutate(FA = str_replace_all(FA,
+                              FA_labeller_LIPIDMAPS)) |>
+  pivot_wider(names_from = FA,
+              values_from = MSD,
+              id_cols = c(Type, Sex, Dev, Tissue))
+
+# write.csv(df_FV_sum_w,
+#           "df_FV_sum_w.csv",
+#           row.names = FALSE)
+
 # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>#####
 
 # 3: Logratio Approach -----
@@ -358,7 +592,22 @@ sort(unique(df_LV_HP$FA))
 df_LV_HP_sum = df_LV_HP |>
   group_by(Type, Time_storage_mo, FA) |>
   summarise(M = mean(perc),
-            SD = sd(perc))
+            SD = sd(perc),
+            MSD = paste0(sprintf("%.2f", round(M, 3)),
+                         " (",
+                         sprintf("%.2f", round(SD, 3)),
+                         ")"))
+df_LV_HP_sum_w = 
+  df_LV_HP_sum |>
+  mutate(FA = str_replace_all(FA,
+                              FA_labeller_LIPIDMAPS)) |>
+  pivot_wider(names_from = FA,
+              values_from = MSD,
+              id_cols = c(Type, Time_storage_mo))
+
+write.csv(df_LV_HP_sum_w,
+          "df_LV_HP_sum_w.csv",
+          row.names = FALSE)
 
 # Get FAs that are at least 0.5% of any type/time combination
 df_LV_HP_list_0.5 = unique(df_LV_HP_sum[df_LV_HP_sum$M >= 0.5,]$FA)
@@ -413,17 +662,17 @@ print.ratios <- function(rationames, R2, procr=NA, N=10) {
 # > > > Step 1 ----
 LV_HP_step1 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10)
 print.ratios(LV_HP_step1$names.top, LV_HP_step1$R2.top)
-# FA1     FA2    R2
-# 1  C20.2n6c C22.6n3 39.14
-# 2   C22.6n3   OBCFA 38.41 <- DHA is LCPUFA, OBCFA for bacteria
-# 3   C22.5n3 C22.6n3 37.25
-# 4   C20.5n3 C22.6n3 36.77
-# 5  C22.4n6c C22.6n3 36.07
-# 6  C20.1n9c C22.6n3 35.67
-# 7  C20.4n6c C22.6n3 34.70
-# 8  C18.2n6c C22.6n3 33.85
-# 9  C18.3n3c C22.6n3 32.27
-# 10 C18.1n9t C22.6n3 31.99
+# FA1      FA2    R2
+# 1  C20.2n6c C22.6n3c 39.14
+# 2  C22.6n3c    OBCFA 38.41 <- DHA is LCPUFA, OBCFA for bacteria
+# 3  C22.5n3c C22.6n3c 37.25
+# 4   C20.5n3 C22.6n3c 36.77
+# 5  C22.4n6c C22.6n3c 36.07
+# 6  C20.1n9c C22.6n3c 35.67
+# 7  C20.4n6c C22.6n3c 34.70
+# 8  C18.2n6c C22.6n3c 33.85
+# 9  C18.3n3c C22.6n3c 32.27
+# 10 C18.1n7c C22.6n3c 31.99
 LV_HP_LR1 = LV_HP_step1$logratios.top[,2]
 LV_HP_NR1 = LV_HP_step1$ratios.top[2,]
 LV_HP_R21 = LV_HP_step1$R2.top[2]
@@ -439,9 +688,9 @@ print.ratios(LV_HP_step2$names.top, LV_HP_step2$R2.top)
 # 5     C14.0 C20.4n6c 55.20
 # 6   C18.4n3  C20.5n3 55.09
 # 7  C16.1n7c    OBCFA 54.92
-# 8  C16.1n7c  C22.6n3 54.92
-# 9   C18.4n3    OBCFA 54.68
-# 10  C18.4n3  C22.6n3 54.68
+# 8  C16.1n7c C22.6n3c 54.92
+# 9   C18.4n3 C22.6n3c 54.68
+# 10  C18.4n3    OBCFA 54.68
 LV_HP_LR2 = cbind(LV_HP_LR1, LV_HP_step2$logratios.top[,1])
 LV_HP_NR2 = rbind(LV_HP_NR1, LV_HP_step2$ratios.top[1,])
 LV_HP_R22 = c(LV_HP_R21, LV_HP_step2$R2.top[1])
@@ -451,9 +700,9 @@ LV_HP_step3 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR2)
 print.ratios(LV_HP_step3$names.top, LV_HP_step3$R2.top)
 # FA1      FA2    R2
 # 1  C16.0  C20.5n3 68.51 <- palmitic common SAFA, EPA is and EFA/diatom marker
-# 2  C16.0  C22.6n3 68.20
-# 3  C16.0    OBCFA 68.20
-# 4  C16.0  C22.5n3 67.91
+# 2  C16.0    OBCFA 68.20
+# 3  C16.0 C22.6n3c 68.20
+# 4  C16.0 C22.5n3c 67.91
 # 5  C16.0 C20.2n6c 67.73
 # 6  C16.0 C20.4n6c 67.53
 # 7  C16.0 C20.1n9c 67.53
@@ -468,27 +717,27 @@ LV_HP_R23 = c(LV_HP_R22, LV_HP_step3$R2.top[1])
 LV_HP_step4 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR3)
 print.ratios(LV_HP_step4$names.top, LV_HP_step4$R2.top)
 # FA1      FA2    R2
-# 1  C20.4n6c  C20.5n3 75.39 <- both eicosanoid LCPUFAs, browns and reds, resp.
-# 2  C20.1n9c  C20.5n3 75.39
-# 3     C16.0 C20.1n9c 75.39
-# 4     C16.0 C20.4n6c 75.39
+# 1  C20.1n9c  C20.5n3 75.39
+# 2  C20.4n6c  C20.5n3 75.39 <- both eicosanoid LCPUFAs, browns and reds, resp.
+# 3     C16.0 C20.4n6c 75.39
+# 4     C16.0 C20.1n9c 75.39
 # 5     C16.0    C18.0 74.87
 # 6     C18.0  C20.5n3 74.87
-# 7     C16.0 C18.1n9c 74.71
-# 8  C18.1n9c  C20.5n3 74.71
+# 7  C18.1n9c  C20.5n3 74.71
+# 8     C16.0 C18.1n9c 74.71
 # 9     C18.0  C18.4n3 74.45
 # 10    C16.0 C18.2n6c 74.33
-LV_HP_LR4 = cbind(LV_HP_LR3, LV_HP_step4$logratios.top[,1])
-LV_HP_NR4 = rbind(LV_HP_NR3, LV_HP_step4$ratios.top[1,])
-LV_HP_R24 = c(LV_HP_R23, LV_HP_step4$R2.top[1])
+LV_HP_LR4 = cbind(LV_HP_LR3, LV_HP_step4$logratios.top[,2])
+LV_HP_NR4 = rbind(LV_HP_NR3, LV_HP_step4$ratios.top[2,])
+LV_HP_R24 = c(LV_HP_R23, LV_HP_step4$R2.top[2])
 
 # > > > Step 5 -----
 LV_HP_step5 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR4)
 print.ratios(LV_HP_step5$names.top, LV_HP_step5$R2.top)
 # FA1      FA2    R2
 # 1     C18.0  C18.4n3 81.32 <- stearic common SAFA, stearidonic for browns
-# 2     C18.0 C20.4n6c 81.23
-# 3     C18.0 C20.1n9c 81.23
+# 2     C18.0 C20.1n9c 81.23
+# 3     C18.0 C20.4n6c 81.23
 # 4     C16.0    C18.0 81.23
 # 5     C18.0  C20.5n3 81.23
 # 6     C14.0    C18.0 81.13
@@ -505,15 +754,15 @@ LV_HP_step6 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR5)
 print.ratios(LV_HP_step6$names.top, LV_HP_step6$R2.top)
 # FA1      FA2    R2
 # 1  C18.1n9c C22.1n9c 85.68 <- oleic for carnivory, detritus, 22:1 for zoops
-# 2  C18.1n9c C20.1n9c 85.53
-# 3  C18.1n9c  C20.5n3 85.53
-# 4  C18.1n9c C20.4n6c 85.53
-# 5     C16.0 C18.1n9c 85.53
-# 6  C20.4n6c C22.1n9c 85.41
-# 7   C20.5n3 C22.1n9c 85.41
-# 8     C16.0 C22.1n9c 85.41
-# 9  C20.1n9c C22.1n9c 85.41
-# 10 C22.1n9c    OBCFA 85.37
+# 2  C18.1n9c  C20.5n3 85.53
+# 3  C18.1n9c C20.4n6c 85.53
+# 4     C16.0 C18.1n9c 85.53
+# 5  C18.1n9c C20.1n9c 85.53
+# 6  C20.1n9c C22.1n9c 85.41
+# 7  C20.4n6c C22.1n9c 85.41
+# 8   C20.5n3 C22.1n9c 85.41
+# 9     C16.0 C22.1n9c 85.41
+# 10 C22.1n9c C22.6n3c 85.37
 LV_HP_LR6 = cbind(LV_HP_LR5, LV_HP_step6$logratios.top[,1])
 LV_HP_NR6 = rbind(LV_HP_NR5, LV_HP_step6$ratios.top[1,])
 LV_HP_R26 = c(LV_HP_R25, LV_HP_step6$R2.top[1])
@@ -523,76 +772,90 @@ LV_HP_step7 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR6)
 print.ratios(LV_HP_step7$names.top, LV_HP_step7$R2.top)
 # FA1      FA2    R2
 # 1  C20.4n6c C22.1n9c 89.54
-# 2  C20.1n9c C22.1n9c 89.54
-# 3  C18.1n9c C20.1n9c 89.54
-# 4  C18.1n9c C20.4n6c 89.54
-# 5   C20.5n3 C22.1n9c 89.54
-# 6  C18.1n9c  C20.5n3 89.54 <- oleic more abundant in browns, EPA in reds
-# 7     C16.0 C18.1n9c 89.54
+# 2  C18.1n9c C20.1n9c 89.54
+# 3  C18.1n9c  C20.5n3 89.54 <- oleic more abundant in browns, EPA in reds
+# 4  C20.1n9c C22.1n9c 89.54
+# 5     C16.0 C18.1n9c 89.54
+# 6   C20.5n3 C22.1n9c 89.54
+# 7  C18.1n9c C20.4n6c 89.54
 # 8     C16.0 C22.1n9c 89.54
 # 9   C18.4n3  C20.5n3 89.10
-# 10    C18.0 C20.1n9c 89.10
-LV_HP_LR7 = cbind(LV_HP_LR6, LV_HP_step7$logratios.top[,6])
-LV_HP_NR7 = rbind(LV_HP_NR6, LV_HP_step7$ratios.top[6,])
-LV_HP_R27 = c(LV_HP_R26, LV_HP_step7$R2.top[6])
+# 10  C18.4n3 C20.4n6c 89.10
+LV_HP_LR7 = cbind(LV_HP_LR6, LV_HP_step7$logratios.top[,3])
+LV_HP_NR7 = rbind(LV_HP_NR6, LV_HP_step7$ratios.top[3,])
+LV_HP_R27 = c(LV_HP_R26, LV_HP_step7$R2.top[3])
 
 # > > > Step 8 -----
 LV_HP_step8 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR7)
 print.ratios(LV_HP_step8$names.top, LV_HP_step8$R2.top)
 # FA1      FA2    R2
-# 1   C18.4n3  C20.5n3 92.44
-# 2   C18.4n3 C20.4n6c 92.44 <- both are brown indicators, but ARA is LCPUFA
-# 3     C18.0 C20.4n6c 92.44
-# 4  C18.1n9c  C18.4n3 92.44
-# 5     C18.0 C20.1n9c 92.44
-# 6     C18.0 C18.1n9c 92.44
-# 7   C18.4n3 C20.1n9c 92.44
+# 1  C18.1n9c  C18.4n3 92.44
+# 2     C18.0 C20.4n6c 92.44
+# 3     C16.0  C18.4n3 92.44
+# 4     C18.0 C20.1n9c 92.44
+# 5     C16.0    C18.0 92.44
+# 6     C18.0 C22.1n9c 92.44
+# 7   C18.4n3 C20.4n6c 92.44 <- both are brown indicators, but ARA is LCPUFA
 # 8   C18.4n3 C22.1n9c 92.44
-# 9     C16.0  C18.4n3 92.44
-# 10    C16.0    C18.0 92.44
-LV_HP_LR8 = cbind(LV_HP_LR7, LV_HP_step8$logratios.top[,2])
-LV_HP_NR8 = rbind(LV_HP_NR7, LV_HP_step8$ratios.top[2,])
-LV_HP_R28 = c(LV_HP_R27, LV_HP_step8$R2.top[2])
+# 9     C18.0 C18.1n9c 92.44
+# 10    C18.0  C20.5n3 92.44
+LV_HP_LR8 = cbind(LV_HP_LR7, LV_HP_step8$logratios.top[,7])
+LV_HP_NR8 = rbind(LV_HP_NR7, LV_HP_step8$ratios.top[7,])
+LV_HP_R28 = c(LV_HP_R27, LV_HP_step8$R2.top[7])
 
 # > > > Step 9
 LV_HP_step9 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR8)
 print.ratios(LV_HP_step9$names.top, LV_HP_step9$R2.top)
 # FA1      FA2    R2
-# 1  C22.4n6c  C22.6n3 94.40 <- both adrenic and DHA are LCPUFA, but adrenic not straightforward
-# 2  C22.4n6c    OBCFA 94.40
-# 3  C20.4n6c C22.4n6c 94.38
-# 4     C16.0 C22.4n6c 94.38
-# 5  C20.1n9c C22.4n6c 94.38
-# 6     C18.0 C22.4n6c 94.38
-# 7  C18.1n9c C22.4n6c 94.38
-# 8  C22.1n9c C22.4n6c 94.38
-# 9   C18.4n3 C22.4n6c 94.38
+# 1  C22.4n6c    OBCFA 94.40 
+# 2  C22.4n6c C22.6n3c 94.40 <- both adrenic and DHA are LCPUFA, but adrenic not straightforward
+# 3  C20.1n9c C22.4n6c 94.38
+# 4  C22.1n9c C22.4n6c 94.38
+# 5  C18.1n9c C22.4n6c 94.38
+# 6   C18.4n3 C22.4n6c 94.38
+# 7  C20.4n6c C22.4n6c 94.38
+# 8     C16.0 C22.4n6c 94.38
+# 9     C18.0 C22.4n6c 94.38
 # 10  C20.5n3 C22.4n6c 94.38
-LV_HP_LR9 = cbind(LV_HP_LR8, LV_HP_step9$logratios.top[,1])
-LV_HP_NR9 = rbind(LV_HP_NR8, LV_HP_step9$ratios.top[1,])
-LV_HP_R29 = c(LV_HP_R28, LV_HP_step9$R2.top[1])
+LV_HP_LR9 = cbind(LV_HP_LR8, LV_HP_step9$logratios.top[,2])
+LV_HP_NR9 = rbind(LV_HP_NR8, LV_HP_step9$ratios.top[2,])
+LV_HP_R29 = c(LV_HP_R28, LV_HP_step9$R2.top[2])
 
 # > > > Step 10 -----
 LV_HP_step10 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR9)
 print.ratios(LV_HP_step10$names.top, LV_HP_step10$R2.top)
 # FA1      FA2    R2
-# 1  C16.1n7c  C20.5n3 96.09
-# 2  C16.1n7c    C18.0 96.09
-# 3  C16.1n7c C20.4n6c 96.09
-# 4  C16.1n7c  C18.4n3 96.09
-# 5     C16.0 C16.1n7c 96.09 <- diatom marker, sensu Copeman et al.
+# 1     C16.0 C16.1n7c 96.09 <- diatom marker, sensu Copeman et al.
+# 2  C16.1n7c C18.1n9c 96.09
+# 3  C16.1n7c C22.1n9c 96.09
+# 4  C16.1n7c    C18.0 96.09
+# 5  C16.1n7c  C20.5n3 96.09
 # 6  C16.1n7c C20.1n9c 96.09
-# 7  C16.1n7c C22.1n9c 96.09
-# 8  C16.1n7c C18.1n9c 96.09
-# 9  C22.1n9c  C22.6n3 96.06
-# 10    C18.0  C22.6n3 96.06
-LV_HP_LR10 = cbind(LV_HP_LR9, LV_HP_step10$logratios.top[,5])
-LV_HP_NR10 = rbind(LV_HP_NR9, LV_HP_step10$ratios.top[5,])
-LV_HP_R210 = c(LV_HP_R29, LV_HP_step10$R2.top[5])
+# 7  C16.1n7c C20.4n6c 96.09
+# 8  C16.1n7c  C18.4n3 96.09
+# 9  C18.1n9c C22.4n6c 96.06
+# 10    C18.0 C22.6n3c 96.06
+LV_HP_LR10 = cbind(LV_HP_LR9, LV_HP_step10$logratios.top[,1])
+LV_HP_NR10 = rbind(LV_HP_NR9, LV_HP_step10$ratios.top[1,])
+LV_HP_R210 = c(LV_HP_R29, LV_HP_step10$R2.top[1])
 
 # > > > Step 11 -----
-LV_HP_step11 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR10)
-print.ratios(LV_HP_step11$names.top, LV_HP_step11$R2.top)
+LV_HP_step11 = STEP(data = ma_LV_HPw, nsteps = 1, top = 20, previous = LV_HP_LR10)
+print.ratios(LV_HP_step11$names.top, LV_HP_step11$R2.top, N = 20)
+# FA1      FA2    R2
+# 1     C18.0 C22.6n3c 97.75
+# 2     C18.0    OBCFA 97.75
+# 3  C20.4n6c    OBCFA 97.75
+# 4  C18.1n9c    OBCFA 97.75 <- oleic for carnivory, OBCFA for bacteria 
+# 5  C18.1n9c C22.4n6c 97.75
+# 6  C16.1n7c    OBCFA 97.75
+# 7     C16.0 C22.4n6c 97.75
+# 8     C16.0    OBCFA 97.75
+# 9   C18.4n3 C22.6n3c 97.75
+# 10 C20.1n9c    OBCFA 97.75
+
+# Earlier run presented these options
+# The same ratio as below is option 17 above, with equivalent improvement
 # FA1      FA2    R2
 # 1  C22.1n9c  C22.6n3 97.75
 # 2  C20.4n6c  C22.6n3 97.75 <- both arguable LCEFA, ARA common in browns
@@ -604,13 +867,29 @@ print.ratios(LV_HP_step11$names.top, LV_HP_step11$R2.top)
 # 8   C20.5n3    OBCFA 97.75
 # 9  C18.1n9c C22.4n6c 97.75
 # 10    C16.0    OBCFA 97.75
-LV_HP_LR11 = cbind(LV_HP_LR10, LV_HP_step11$logratios.top[,2])
-LV_HP_NR11 = rbind(LV_HP_NR10, LV_HP_step11$ratios.top[2,])
-LV_HP_R211 = c(LV_HP_R210, LV_HP_step11$R2.top[2])
+LV_HP_LR11 = cbind(LV_HP_LR10, LV_HP_step11$logratios.top[,4])
+LV_HP_NR11 = rbind(LV_HP_NR10, LV_HP_step11$ratios.top[4,])
+LV_HP_R211 = c(LV_HP_R210, LV_HP_step11$R2.top[4])
 
 # > > > Step 12 -----
 LV_HP_step12 = STEP(data = ma_LV_HPw, nsteps = 1, top = 10, previous = LV_HP_LR11)
 print.ratios(LV_HP_step12$names.top, LV_HP_step12$R2.top)
+# FA1      FA2    R2
+# 1     C14.0 C22.5n3c 98.55
+# 2     C14.0 C20.2n6c 98.53
+# 3   C18.4n3 C22.5n3c 98.48
+# 4  C18.1n9c C22.5n3c 98.48
+# 5  C20.4n6c C22.5n3c 98.48
+# 6   C20.5n3 C22.5n3c 98.48
+# 7  C20.1n9c C22.5n3c 98.48
+# 8  C16.1n7c C22.5n3c 98.48
+# 9  C22.5n3c C22.6n3c 98.48
+# 10 C22.4n6c C22.5n3c 98.48
+
+# Stop here. DPA is only somwhat informative and diminishing returns
+
+# Earlier run presented these options after selecting 
+#     2  C20.4n6c  C22.6n3 97.75 
 # FA1      FA2    R2
 # 1     C14.0  C22.5n3 98.55
 # 2     C14.0 C20.2n6c 98.53
@@ -623,7 +902,7 @@ print.ratios(LV_HP_step12$names.top, LV_HP_step12$R2.top)
 # 9  C20.4n6c  C22.5n3 98.48
 # 10  C22.5n3  C22.6n3 98.48
 
-# Stop here. DPA is only somwhat informative and diminishing returns
+# Note that the change in step 11 yielded practically the same options as here.
 
 # > > 3.1.3: Organize step 11 LRs -----
 rownames(LV_HP_NR11) = paste("Step", 1:11, sep="")
@@ -659,32 +938,32 @@ colnames(ma_LV_HPw)[LV_HP_PiR]
 
 # > > 3.1.4: Prep acyclic graph -----
 LV_HP_PiR_dim = data.frame(FA = colnames(ma_LV_HPw)[LV_HP_PiR],
-                           dim1 = c(2, # C22.6n3
+                           dim1 = c(2, # C22.6n3c
                                     1, # OBCFA
-                                    1, # C20.1n9c
-                                    2, # C20.4n6c
-                                    1, # C16.0
-                                    2, # C20.5n3
-                                    4, # C18.0
-                                    3, # C18.4n3
-                                    3, # C18.1n9c
-                                    4, # C22.1n9c
-                                    3, # C22.4n6c
-                                    1),# C16.1n7c
-                           dim2 = c(4, # C22.6n3
-                                    4, # OBCFA
                                     3, # C20.1n9c
                                     3, # C20.4n6c
                                     2, # C16.0
                                     2, # C20.5n3
+                                    4, # C18.0
+                                    3, # C18.4n3
+                                    1, # C18.1n9c
+                                    1, # C22.1n9c
+                                    3, # C22.4n6c
+                                    2),# C16.1n7c
+                           dim2 = c(4, # C22.6n3c
+                                    4, # OBCFA
+                                    2, # C20.1n9c
+                                    3, # C20.4n6c
+                                    2, # C16.0
+                                    3, # C20.5n3
                                     3, # C18.0
                                     3, # C18.4n3
-                                    2, # C18.1n9c
+                                    3, # C18.1n9c
                                     2, # C22.1n9c
                                     4, # C22.4n6c
                                     1))# C16.1n7c
 LV_HP_PiR_dim$FA_labs = str_replace_all(LV_HP_PiR_dim$FA,
-                                        FA_labeller)
+                                        FA_labeller_LIPIDMAPS)
 
 LV_HP_FR = left_join(LV_HP_FR,
                      LV_HP_PiR_dim,
@@ -757,7 +1036,7 @@ df_LV_HP_arrows$hjust = ifelse(df_LV_HP_arrows$angle > 90,
 # Format arrow labels
 df_LV_HP_arrows$labs = df_LV_HP_arrows$LR
 df_LV_HP_arrows$labs = str_replace_all(df_LV_HP_arrows$labs,
-                                       FA_labeller)
+                                       FA_labeller_LIPIDMAPS)
 df_LV_HP_arrows$labs = str_replace_all(df_LV_HP_arrows$labs,
                                        "/",
                                        " / ")
@@ -953,7 +1232,7 @@ plot_LV_HP_PCA2 = ggplot() +
 #            color = "grey70",
 #            size = 3,
 #            data = df_LV_HP_RPC_MSD) +
-scale_color_viridis_d(option = "mako",
+scale_color_viridis_d(option = "turbo",
                       begin = 0.2,
                       end = 0.9,
                       direction = -1,
@@ -1143,11 +1422,11 @@ df_LV_HP_LR11 = df_LV_HP_LR11w |>
                values_to = "LR")
 
 df_LV_HP_LR11$FAs = str_replace_all(df_LV_HP_LR11$FAs,
-                                    FA_labeller)
+                                    FA_labeller_LIPIDMAPS)
 
 df_LV_HP_LR11$FAs = factor(df_LV_HP_LR11$FAs,
                            levels = str_replace_all(LV_HP_FR$Ratio,
-                                                    FA_labeller))
+                                                    FA_labeller_LIPIDMAPS))
 df_LV_HP_LR11_sum = df_LV_HP_LR11 |>
   group_by(TypeMo, FAs) |>
   summarise(M = mean(LR),
@@ -1175,7 +1454,7 @@ plot_LV_HP_LR_cat = ggplot() +
              shape = 9,
              color = "firebrick",
              data = df_LV_HP_LR11_sum) +
-  scale_color_viridis_d(option = "mako",
+  scale_color_viridis_d(option = "turbo",
                         begin = 0.2,
                         end = 0.9) +
   scale_x_discrete(labels = c("FRZ, 0 mo",
@@ -1593,12 +1872,12 @@ arrow_angle = ifelse(arrow_angle > 90 & arrow_angle < 270,
 arrow_hjust = ifelse(arrow_angle > 90,
                      1,
                      0)
+
 FA_arrows$labs = as.character(rownames(FA_arrows))
-FA_arrows$labs = gsub("C", "", FA_arrows$labs)
-FA_arrows$labs = gsub("B", "", FA_arrows$labs)
-FA_arrows$labs = sub("c", "*c", FA_arrows$labs)
-FA_arrows$labs = sub("\\.", ":", FA_arrows$labs)
-FA_arrows$labs = sub("n", "*omega*-", FA_arrows$labs)
+
+FA_arrows =
+  FA_arrows |>
+  mutate(labs = str_replace_all(labs, FA_labeller_LIPIDMAPS2))
 
 # Stress annotation
 fontfamily = "sans"
@@ -1742,7 +2021,7 @@ plot_LV_HP_nMDS2 = ggplot()+
 #           parse = T,
 #           angle = arrow_angle,
 #           hjust = arrow_hjust) +
-scale_color_viridis_d(option = "mako",
+scale_color_viridis_d(option = "turbo",
                       begin = 0.2,
                       end = 0.9,
                       direction = -1,
@@ -1786,7 +2065,7 @@ plot_LV_HP_nMDS_base =
             aes(NMDS1, NMDS2, label =  FA_arrows$labs),
             color = "grey50",
             size = unit(2, "pt"),
-            parse = T,
+            parse = F,
             angle = arrow_angle,
             hjust = arrow_hjust) +
   theme_classic() +
@@ -2183,6 +2462,7 @@ banana = df_FV_HP |>
            Time_storage_mo,
            TFA_ug) |>
   summarize(perc = sum(perc),
+            ug0 = sum(ug0),
             FA = "OBCFA")
 
 # Attach summed OBCFAs and remove individual FAs
@@ -2199,6 +2479,57 @@ df_FV_HP_sum = df_FV_HP |>
   group_by(Type, Sex, Dev, FA) |>
   summarise(M = mean(perc),
             SD = sd(perc))
+
+plot_TFA_FV = 
+  df_FV |>
+  mutate(perc = ifelse(is.nan(perc),
+                       0,
+                       perc),
+         SexDev = paste(Sex, Dev, sep = ", ")) |>
+  group_by(Type, Tissue, SexDev, FA) |>
+  summarize(perc_M = mean(perc, na.rm = TRUE),
+            perc_SE = sd(perc, na.rm = TRUE) / sqrt(n())) |>
+  ggplot() +
+  geom_errorbar(aes(x = SexDev,
+                    ymin = perc_M - 1.96 * perc_SE,
+                    ymax = perc_M + 1.96 * perc_SE,
+                    group = Type),
+                position = position_dodge(width = 0.9),
+                width = 0) +
+  geom_point(aes(x = SexDev,
+                 y = perc_M,
+                 color = Type),
+             size = 0.5,
+             position = position_dodge(width = 0.9)) +
+  scale_color_manual(values = c("firebrick",
+                                "dodgerblue"),
+                     labels = c("DTS",
+                                "FRZ")) +
+  coord_cartesian(ylim = c(0, 35)) +
+  labs(y = "% TFA",
+       x = "Sex, Maturity") +
+  theme_minimal() +
+  theme(axis.title = element_text(size = unit(8, "pt")),
+        axis.text = element_text(size = unit(6, "pt")),
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        legend.title = element_text(size = unit(6, "pt")),
+        legend.text = element_text(size = unit(6, "pt")),
+        panel.border = element_rect(color = "grey30", fill = NA),
+        strip.text = element_text(angle = 90, hjust = 0, size = unit(8, "pt")),
+        panel.spacing.x = unit(2, "pt"),
+        legend.position = "bottom") +
+  facet_grid(Tissue ~ FA,
+             labeller = as_labeller(c(c(HL = "hemolymph",
+                                        HP = "hepatopancreas"),
+                                      FA_labeller_LIPIDMAPS))) 
+plot_TFA_FV
+
+ggsave("CrabDTS_FigSX2.tiff",
+       device = "tiff",
+       height = 5,
+       width = 10,
+       dpi = 150)
+
 
 # Get FAs that are at least 0.5% of any type/sex/maturity combination
 df_FV_HP_list_0.5 = unique(df_FV_HP_sum[df_FV_HP_sum$M >= 0.5,]$FA)
@@ -2285,19 +2616,19 @@ FV_HP_R23 = c(FV_HP_R22, FV_HP_step3$R2.top[1])
 FV_HP_step4 = STEP(data = ma_FV_HPw, nsteps = 1, top = 10, previous = FV_HP_LR3)
 print.ratios(FV_HP_step4$names.top, FV_HP_step4$R2.top)
 # FA1      FA2    R2
-# 1     C18.0 C18.1n9c 91.25 <- SAFA and desat product
-# 2     C18.0  C20.5n3 91.25
+# 1     C18.0  C20.5n3 91.25
+# 2     C18.0 C18.1n9c 91.25 <- SAFA and desat product
 # 3   C16.4n1    C18.0 91.13
 # 4     C18.0  C18.4n3 91.08
-# 5     C16.0    C18.0 91.02
-# 6     C18.0  C22.6n3 91.02
+# 5     C18.0 C22.6n3c 91.02
+# 6     C16.0    C18.0 91.02
 # 7  C16.1n7c    C18.0 91.02
 # 8     C18.0 C20.4n6c 90.94
 # 9     C18.0    OBCFA 90.84
 # 10    C14.0    C18.0 90.77
-FV_HP_LR4 = cbind(FV_HP_LR3, FV_HP_step4$logratios.top[,1])
-FV_HP_NR4 = rbind(FV_HP_NR3, FV_HP_step4$ratios.top[1,])
-FV_HP_R24 = c(FV_HP_R23, FV_HP_step4$R2.top[1])
+FV_HP_LR4 = cbind(FV_HP_LR3, FV_HP_step4$logratios.top[,2])
+FV_HP_NR4 = rbind(FV_HP_NR3, FV_HP_step4$ratios.top[2,])
+FV_HP_R24 = c(FV_HP_R23, FV_HP_step4$R2.top[2])
 
 # > > > > Step 5 -----
 FV_HP_step5 = STEP(data = ma_FV_HPw, nsteps = 1, top = 10, previous = FV_HP_LR4)
@@ -2322,14 +2653,14 @@ FV_HP_step6 = STEP(data = ma_FV_HPw, nsteps = 1, top = 10, previous = FV_HP_LR5)
 print.ratios(FV_HP_step6$names.top, FV_HP_step6$R2.top)
 # FA1      FA2    R2
 # 1     C16.4n1 C22.1n9c 96.50
-# 2     C18.4n3 C22.1n9c 96.40 <- <- SDA and 22:1n9 for copes/zoops
-# 3    C18.1n9t C22.1n9c 96.38
+# 2     C18.4n3 C22.1n9c 96.40 <- SDA and 22:1n9 for copes/zoops
+# 3    C18.1n7c C22.1n9c 96.38
 # 4     C20.5n3 C22.1n9c 96.33
 # 5       C18.0 C22.1n9c 96.33
-# 6  C20.1n9.7c C22.1n9c 96.33
-# 7    C18.1n9c C22.1n9c 96.33
-# 8    C22.1n9c  C22.6n3 96.31
-# 9    C16.1n7c C22.1n9c 96.31
+# 6    C18.1n9c C22.1n9c 96.33
+# 7  C20.1n9.7c C22.1n9c 96.33
+# 8    C16.1n7c C22.1n9c 96.31
+# 9    C22.1n9c C22.6n3c 96.31
 # 10      C16.0 C22.1n9c 96.31
 FV_HP_LR6 = cbind(FV_HP_LR5, FV_HP_step6$logratios.top[,2])
 FV_HP_NR6 = rbind(FV_HP_NR5, FV_HP_step6$ratios.top[2,])
@@ -2338,35 +2669,35 @@ FV_HP_R26 = c(FV_HP_R25, FV_HP_step6$R2.top[2])
 # > > > > Step 7 -----
 FV_HP_step7 = STEP(data = ma_FV_HPw, nsteps = 1, top = 10, previous = FV_HP_LR6)
 print.ratios(FV_HP_step7$names.top, FV_HP_step7$R2.top)
-# FA1        FA2    R2
-# 1    C14.0    C22.5n3 97.48
-# 2    C14.0    C22.6n3 97.47 <- myristic common SAFA, DHA more interpretable than DPA
-# 3    C14.0      C16.0 97.47
-# 4    C14.0   C16.1n7c 97.47
-# 5    C14.0   C22.4n6c 97.46
-# 6    C14.0   C18.1n9t 97.44
-# 7  C16.4n1      OBCFA 97.44
-# 8    C14.0   C22.1n9c 97.42
-# 9    C14.0    C18.4n3 97.42
-# 10   C14.0 C20.1n9.7c 97.42
-FV_HP_LR7 = cbind(FV_HP_LR6, FV_HP_step7$logratios.top[,2])
-FV_HP_NR7 = rbind(FV_HP_NR6, FV_HP_step7$ratios.top[2,])
-FV_HP_R27 = c(FV_HP_R26, FV_HP_step7$R2.top[2])
+# FA1      FA2    R2
+# 1    C14.0 C22.5n3c 97.48
+# 2    C14.0 C16.1n7c 97.47
+# 3    C14.0 C22.6n3c 97.47 <- myristic common SAFA, DHA more interpretable than DPA
+# 4    C14.0    C16.0 97.47
+# 5    C14.0 C22.4n6c 97.46
+# 6    C14.0 C18.1n7c 97.44
+# 7  C16.4n1    OBCFA 97.44
+# 8    C14.0  C18.4n3 97.42
+# 9    C14.0 C22.1n9c 97.42
+# 10   C14.0 C18.1n9c 97.42
+FV_HP_LR7 = cbind(FV_HP_LR6, FV_HP_step7$logratios.top[,3])
+FV_HP_NR7 = rbind(FV_HP_NR6, FV_HP_step7$ratios.top[3,])
+FV_HP_R27 = c(FV_HP_R26, FV_HP_step7$R2.top[3])
 
 # > > > > Step 8 -----
 FV_HP_step8 = STEP(data = ma_FV_HPw, nsteps = 1, top = 10, previous = FV_HP_LR7)
 print.ratios(FV_HP_step8$names.top, FV_HP_step8$R2.top)
 # FA1        FA2    R2
 # 1   C16.4n1      OBCFA 98.50 <- 16:4n1 unclear, OBCFA for bacteria
-# 2  C20.4n6c   C22.1n9c 98.47
-# 3   C18.4n3   C20.4n6c 98.47
+# 2   C18.4n3   C20.4n6c 98.47
+# 3  C20.4n6c   C22.1n9c 98.47
 # 4   C16.4n1   C20.4n6c 98.47
-# 5   C16.4n1 C20.1n9.7c 98.45
-# 6   C16.4n1   C18.1n9c 98.45
-# 7   C16.4n1      C18.0 98.45
-# 8   C16.4n1    C20.5n3 98.45
-# 9   C16.4n1    C22.5n3 98.42
-# 10 C22.1n9c    C22.5n3 98.42
+# 5   C16.4n1    C20.5n3 98.45
+# 6   C16.4n1      C18.0 98.45
+# 7   C16.4n1 C20.1n9.7c 98.45
+# 8   C16.4n1   C18.1n9c 98.45
+# 9   C16.4n1   C22.5n3c 98.42
+# 10 C22.1n9c   C22.5n3c 98.42
 FV_HP_LR8 = cbind(FV_HP_LR7, FV_HP_step8$logratios.top[,1])
 FV_HP_NR8 = rbind(FV_HP_NR7, FV_HP_step8$ratios.top[1,])
 FV_HP_R28 = c(FV_HP_R27, FV_HP_step8$R2.top[1])
@@ -2374,17 +2705,17 @@ FV_HP_R28 = c(FV_HP_R27, FV_HP_step8$R2.top[1])
 # > > > > Step 9 -----
 FV_HP_step9 = STEP(data = ma_FV_HPw, nsteps = 1, top = 10, previous = FV_HP_LR8)
 print.ratios(FV_HP_step9$names.top, FV_HP_step9$R2.top)
-# FA1     FA2    R2
-# 1     C16.0   OBCFA 98.98
-# 2     C16.0 C16.4n1 98.98
-# 3  C16.1n7c C16.4n1 98.98
-# 4     C14.0 C16.4n1 98.98
-# 5   C22.6n3   OBCFA 98.98
-# 6     C14.0   OBCFA 98.98
-# 7  C16.1n7c   OBCFA 98.98
-# 8   C16.4n1 C22.6n3 98.98
-# 9     C16.0 C22.5n3 98.93
-# 10    C14.0 C22.5n3 98.93
+# FA1      FA2    R2
+# 1  C16.1n7c  C16.4n1 98.98
+# 2     C14.0    OBCFA 98.98
+# 3     C14.0  C16.4n1 98.98
+# 4  C16.1n7c    OBCFA 98.98
+# 5     C16.0  C16.4n1 98.98
+# 6     C16.0    OBCFA 98.98
+# 7  C22.6n3c    OBCFA 98.98
+# 8   C16.4n1 C22.6n3c 98.98
+# 9     C16.0 C22.5n3c 98.93
+# 10    C14.0 C22.5n3c 98.93
 
 # Stop here. Recovering less than 1% variation and prominent FA (16:4n1) has 
 # limited interpretability.
@@ -2449,7 +2780,7 @@ FV_HP_PiR_dim = data.frame(FA = colnames(ma_FV_HPw)[FV_HP_PiR],
                                     1)) # OBCFA
 
 FV_HP_PiR_dim$FA_labs = str_replace_all(FV_HP_PiR_dim$FA,
-                                        FA_labeller)
+                                        FA_labeller_LIPIDMAPS)
 
 FV_HP_FR = left_join(FV_HP_FR,
                      FV_HP_PiR_dim,
@@ -2533,7 +2864,7 @@ df_FV_HP_arrows$hjust = ifelse(df_FV_HP_arrows$angle > 90,
 # Format arrow labels
 df_FV_HP_arrows$labs = df_FV_HP_arrows$LR
 df_FV_HP_arrows$labs = str_replace_all(df_FV_HP_arrows$labs,
-                                       FA_labeller)
+                                       FA_labeller_LIPIDMAPS)
 df_FV_HP_arrows$labs = str_replace_all(df_FV_HP_arrows$labs,
                                        "/",
                                        " / ")
@@ -2833,11 +3164,11 @@ df_FV_HP_LR8 = df_FV_HP_LR8w |>
                values_to = "LR")
 
 df_FV_HP_LR8$FAs = str_replace_all(df_FV_HP_LR8$FAs,
-                                   FA_labeller)
+                                   FA_labeller_LIPIDMAPS)
 
 df_FV_HP_LR8$FAs = factor(df_FV_HP_LR8$FAs,
                           levels = str_replace_all(FV_HP_FR$Ratio,
-                                                   FA_labeller))
+                                                   FA_labeller_LIPIDMAPS))
 df_FV_HP_LR8_sum = df_FV_HP_LR8 |>
   group_by(Type, SexDev, FAs) |>
   summarise(M = mean(LR),
@@ -2950,6 +3281,7 @@ banana = df_FVnMM_HP |>
            Time_storage_mo,
            TFA_ug) |>
   summarize(perc = sum(perc),
+            ug0 = sum(ug0),
             FA = "OBCFA")
 
 # Attach summed OBCFAs and remove individual FAs
@@ -2960,6 +3292,65 @@ df_FVnMM_HP =
 
 # Check
 sort(unique(df_FVnMM_HP$FA))
+
+# Simple univariate plots
+df_FVnMM_HP |>
+  mutate(SexDev = paste0(Sex, Dev)) |>
+  group_by(Type, SexDev, FA) |>
+  summarize(ug0_M = mean(ug0, na.rm = TRUE),
+            ug0_SE = sd(ug0, na.rm = TRUE) / sqrt(n())) |>
+  ggplot() +
+  geom_errorbar(aes(x = FA,
+                    ymin = ug0_M - 1.96 * ug0_SE,
+                    ymax = ug0_M + 1.96 * ug0_SE,
+                    group = Type),
+                position = position_dodge(width = 0.9),
+                width = 0) +
+  geom_point(aes(x = FA,
+                 y = ug0_M,
+                 color = Type),
+             position = position_dodge(width = 0.9)) +
+  scale_color_manual(values = c("firebrick",
+                                "dodgerblue"),
+                     labels = c("DTS",
+                                "FRZ")) +
+  labs(y = "measured FA (ug)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        panel.border = element_rect(color = "grey30", fill = NA)) +
+  facet_wrap(. ~ SexDev,
+             labeller = as_labeller(c("Fimm" = "Female, imm.",
+                                      "Fmat" = "Female, mat.",
+                                      "Mimm" = "Male, imm."))) 
+
+df_FVnMM_HP |>
+  mutate(SexDev = paste0(Sex, Dev)) |>
+  group_by(Type, SexDev, FA) |>
+  summarize(perc_M = mean(perc, na.rm = TRUE),
+            perc_SE = sd(perc, na.rm = TRUE) / sqrt(n())) |>
+  ggplot() +
+  geom_errorbar(aes(x = FA,
+                    ymin = perc_M - 1.96 * perc_SE,
+                    ymax = perc_M + 1.96 * perc_SE,
+                    group = Type),
+                position = position_dodge(width = 0.9),
+                width = 0) +
+  geom_point(aes(x = FA,
+                 y = perc_M,
+                 color = Type),
+             position = position_dodge(width = 0.9)) +
+  scale_color_manual(values = c("firebrick",
+                                "dodgerblue"),
+                     labels = c("DTS",
+                                "FRZ")) +
+  labs(y = "% TFA") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5),
+        panel.border = element_rect(color = "grey30", fill = NA)) +
+  facet_wrap(. ~ SexDev,
+             labeller = as_labeller(c("Fimm" = "Female, imm.",
+                                      "Fmat" = "Female, mat.",
+                                      "Mimm" = "Male, imm."))) 
 
 # Summarize
 df_FVnMM_HP_sum = df_FVnMM_HP |>
@@ -3003,12 +3394,12 @@ print.ratios(FVnMM_HP_step1$names.top, FVnMM_HP_step1$R2.top)
 # FA1        FA2    R2
 # 1  C18.1n9c    C20.5n3 47.45 <- Oleic vs EPA
 # 2  C16.1n7c   C18.1n9c 47.34
-# 3  C18.1n9c    C22.5n3 46.57
+# 3  C18.1n9c   C22.5n3c 46.57
 # 4  C18.1n9c   C20.4n6c 45.48
-# 5  C18.1n9c    C22.6n3 45.43
+# 5  C18.1n9c   C22.6n3c 45.43
 # 6  C18.1n9c      OBCFA 45.39
 # 7  C18.1n9c    C18.4n3 44.82
-# 8  C18.1n9c   C18.1n9t 44.76
+# 8  C18.1n9c   C18.1n7c 44.76
 # 9     C16.0   C18.1n9c 44.57
 # 10 C18.1n9c C20.1n9.7c 43.46
 FVnMM_HP_LR1 = FVnMM_HP_step1$logratios.top[,1]
@@ -3019,33 +3410,33 @@ FVnMM_HP_R21 = FVnMM_HP_step1$R2.top[1]
 FVnMM_HP_step2 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR1)
 print.ratios(FVnMM_HP_step2$names.top, FVnMM_HP_step2$R2.top)
 # FA1      FA2    R2
-# 1     C18.0 C18.1n9c 66.10 <- stearic and oleic, desat product
-# 2     C18.0  C20.5n3 66.10
+# 1     C18.0  C20.5n3 66.10
+# 2     C18.0 C18.1n9c 66.10 <- stearic and oleic, desat product
 # 3     C18.0 C20.4n6c 65.74
 # 4  C16.1n7c    C18.0 65.65
-# 5     C18.0  C22.5n3 65.54
-# 6     C18.0  C22.6n3 65.45
+# 5     C18.0 C22.5n3c 65.54
+# 6     C18.0 C22.6n3c 65.45
 # 7     C18.0  C18.4n3 65.37
 # 8     C18.0    OBCFA 65.35
-# 9     C18.0 C18.1n9t 65.13
+# 9     C18.0 C18.1n7c 65.13
 # 10    C16.0    C18.0 65.11
-FVnMM_HP_LR2 = cbind(FVnMM_HP_LR1, FVnMM_HP_step2$logratios.top[,1])
-FVnMM_HP_NR2 = rbind(FVnMM_HP_NR1, FVnMM_HP_step2$ratios.top[1,])
-FVnMM_HP_R22 = c(FVnMM_HP_R21, FVnMM_HP_step2$R2.top[1])
+FVnMM_HP_LR2 = cbind(FVnMM_HP_LR1, FVnMM_HP_step2$logratios.top[,2])
+FVnMM_HP_NR2 = rbind(FVnMM_HP_NR1, FVnMM_HP_step2$ratios.top[2,])
+FVnMM_HP_R22 = c(FVnMM_HP_R21, FVnMM_HP_step2$R2.top[2])
 
 # > > > > Step 3 -----
 FVnMM_HP_step3 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR2)
 print.ratios(FVnMM_HP_step3$names.top, FVnMM_HP_step3$R2.top)
 # FA1        FA2    R2
-# 1       C18.0 C20.1n9.7c 77.97
+# 1    C18.1n9c C20.1n9.7c 77.97
 # 2  C20.1n9.7c    C20.5n3 77.97 <- 20:1n9/7 for copes/zoops, EPA for diatoms
-# 3    C18.1n9c C20.1n9.7c 77.97
-# 4       C18.0   C18.1n9t 77.84
-# 5    C18.1n9c   C18.1n9t 77.84
-# 6    C18.1n9t    C20.5n3 77.84
+# 3       C18.0 C20.1n9.7c 77.97
+# 4       C18.0   C18.1n7c 77.84
+# 5    C18.1n9c   C18.1n7c 77.84
+# 6    C18.1n7c    C20.5n3 77.84
 # 7  C20.1n9.7c   C20.4n6c 76.50
-# 8  C20.1n9.7c    C22.6n3 75.92
-# 9    C16.1n7c      C18.0 75.40
+# 8  C20.1n9.7c   C22.6n3c 75.92
+# 9    C16.1n7c    C20.5n3 75.40
 # 10   C16.1n7c   C18.1n9c 75.40
 FVnMM_HP_LR3 = cbind(FVnMM_HP_LR2, FVnMM_HP_step3$logratios.top[,2])
 FVnMM_HP_NR3 = rbind(FVnMM_HP_NR2, FVnMM_HP_step3$ratios.top[2,])
@@ -3059,12 +3450,12 @@ print.ratios(FVnMM_HP_step4$names.top, FVnMM_HP_step4$R2.top)
 # 2     C16.4n1 C22.1n9c 83.76
 # 3    C16.1n7c C22.1n9c 83.74
 # 4       C16.0 C22.1n9c 83.69
-# 5    C18.1n9t C22.1n9c 83.59
+# 5    C18.1n7c C22.1n9c 83.59
 # 6     C20.5n3 C22.1n9c 83.32
-# 7       C18.0 C22.1n9c 83.32
-# 8    C18.1n9c C22.1n9c 83.32
+# 7    C18.1n9c C22.1n9c 83.32
+# 8       C18.0 C22.1n9c 83.32
 # 9  C20.1n9.7c C22.1n9c 83.32
-# 10   C16.1n7c  C22.6n3 83.16
+# 10   C16.1n7c C22.6n3c 83.16
 FVnMM_HP_LR4 = cbind(FVnMM_HP_LR3, FVnMM_HP_step4$logratios.top[,1])
 FVnMM_HP_NR4 = rbind(FVnMM_HP_NR3, FVnMM_HP_step4$ratios.top[1,])
 FVnMM_HP_R24 = c(FVnMM_HP_R23, FVnMM_HP_step4$R2.top[1])
@@ -3073,34 +3464,34 @@ FVnMM_HP_R24 = c(FVnMM_HP_R23, FVnMM_HP_step4$R2.top[1])
 FVnMM_HP_step5 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR4)
 print.ratios(FVnMM_HP_step5$names.top, FVnMM_HP_step5$R2.top)
 # FA1      FA2    R2
-# 1  C16.1n7c C18.1n9t 88.39
-# 2     C14.0  C22.6n3 88.35
+# 1  C16.1n7c C18.1n7c 88.39 <- palmitoleic for diatoms, vaccenic for bacteria
+# 2     C14.0 C22.6n3c 88.35
 # 3     C16.0  C16.4n1 88.25
 # 4     C16.0 C22.1n9c 88.25
 # 5     C16.0  C18.4n3 88.25
-# 6   C22.6n3    OBCFA 88.24 <- DHA for dinos, OBCFA for bacteria
-# 7     C14.0  C22.5n3 88.18
-# 8  C20.4n6c  C22.6n3 88.15
-# 9   C22.5n3    OBCFA 88.13
-# 10    C14.0    C18.0 88.08
-FVnMM_HP_LR5 = cbind(FVnMM_HP_LR4, FVnMM_HP_step5$logratios.top[,6])
-FVnMM_HP_NR5 = rbind(FVnMM_HP_NR4, FVnMM_HP_step5$ratios.top[6,])
-FVnMM_HP_R25 = c(FVnMM_HP_R24, FVnMM_HP_step5$R2.top[6])
+# 6  C22.6n3c    OBCFA 88.24
+# 7     C14.0 C22.5n3c 88.18
+# 8  C20.4n6c C22.6n3c 88.15
+# 9  C22.5n3c    OBCFA 88.13
+# 10    C14.0  C20.5n3 88.08
+FVnMM_HP_LR5 = cbind(FVnMM_HP_LR4, FVnMM_HP_step5$logratios.top[,1])
+FVnMM_HP_NR5 = rbind(FVnMM_HP_NR4, FVnMM_HP_step5$ratios.top[1,])
+FVnMM_HP_R25 = c(FVnMM_HP_R24, FVnMM_HP_step5$R2.top[1])
 
 # > > > > Step 6 -----
 FVnMM_HP_step6 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR5)
 print.ratios(FVnMM_HP_step6$names.top, FVnMM_HP_step6$R2.top)
 # FA1        FA2    R2
-# 1     C16.0   C22.1n9c 92.55
-# 2     C16.0    C18.4n3 92.55 <- palmitic common SAFA, SDA for browns, cryptos
-# 3     C16.0    C16.4n1 92.47
-# 4   C20.5n3   C22.1n9c 91.90
-# 5   C18.4n3 C20.1n9.7c 91.90
-# 6  C18.1n9c    C18.4n3 91.90
-# 7     C18.0   C22.1n9c 91.90
-# 8     C18.0    C18.4n3 91.90
-# 9  C18.1n9c   C22.1n9c 91.90
-# 10  C18.4n3    C20.5n3 91.90
+# 1       C16.0   C22.1n9c 92.64
+# 2       C16.0    C18.4n3 92.64 <- palmitic common SAFA, SDA for browns, cryptos
+# 3       C16.0    C16.4n1 92.56
+# 4     C20.5n3   C22.1n9c 92.06
+# 5     C18.4n3 C20.1n9.7c 92.06
+# 6    C18.1n9c    C18.4n3 92.06
+# 7    C18.1n9c   C22.1n9c 92.06
+# 8       C18.0   C22.1n9c 92.06
+# 9       C18.0    C18.4n3 92.06
+# 10 C20.1n9.7c   C22.1n9c 92.06
 FVnMM_HP_LR6 = cbind(FVnMM_HP_LR5, FVnMM_HP_step6$logratios.top[,2])
 FVnMM_HP_NR6 = rbind(FVnMM_HP_NR5, FVnMM_HP_step6$ratios.top[2,])
 FVnMM_HP_R26 = c(FVnMM_HP_R25, FVnMM_HP_step6$R2.top[2])
@@ -3108,105 +3499,87 @@ FVnMM_HP_R26 = c(FVnMM_HP_R25, FVnMM_HP_step6$R2.top[2])
 # > > > > Step 7 -----
 FVnMM_HP_step7 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR6)
 print.ratios(FVnMM_HP_step7$names.top, FVnMM_HP_step7$R2.top)
-# FA1      FA2    R2
-# 1  C22.1n9c  C22.6n3 95.29
-# 2     C16.0    OBCFA 95.29
-# 3   C18.4n3    OBCFA 95.29
-# 4  C22.1n9c    OBCFA 95.29
-# 5   C18.4n3  C22.6n3 95.29 <- cryptos vs dinos
-# 6     C16.0  C22.6n3 95.29
-# 7     C16.0 C20.4n6c 95.14
-# 8  C20.4n6c C22.1n9c 95.14
-# 9   C18.4n3 C20.4n6c 95.14
-# 10 C16.1n7c C20.4n6c 95.11
-FVnMM_HP_LR7 = cbind(FVnMM_HP_LR6, FVnMM_HP_step7$logratios.top[,5])
-FVnMM_HP_NR7 = rbind(FVnMM_HP_NR6, FVnMM_HP_step7$ratios.top[5,])
-FVnMM_HP_R27 = c(FVnMM_HP_R26, FVnMM_HP_step7$R2.top[5])
+# FA1        FA2    R2
+# 1  C20.4n6c   C22.1n9c 95.38 <- ARA is LCEFA and in browns, 22:1n9 for copes/zoops 
+# 2     C16.0   C20.4n6c 95.38
+# 3   C18.4n3   C20.4n6c 95.38
+# 4     C16.0      OBCFA 95.18
+# 5   C18.4n3      OBCFA 95.18
+# 6  C22.1n9c      OBCFA 95.18
+# 7  C16.1n7c   C20.4n6c 95.17
+# 8  C18.1n7c   C20.4n6c 95.17
+# 9   C20.5n3   C22.1n9c 95.15
+# 10  C18.4n3 C20.1n9.7c 95.15
+FVnMM_HP_LR7 = cbind(FVnMM_HP_LR6, FVnMM_HP_step7$logratios.top[,1])
+FVnMM_HP_NR7 = rbind(FVnMM_HP_NR6, FVnMM_HP_step7$ratios.top[1,])
+FVnMM_HP_R27 = c(FVnMM_HP_R26, FVnMM_HP_step7$R2.top[1])
 
 # > > > > Step 8 -----
 FVnMM_HP_step8 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR7)
 print.ratios(FVnMM_HP_step8$names.top, FVnMM_HP_step8$R2.top)
-# FA1        FA2    R2
-# 1  C16.1n7c   C22.1n9c 97.26
-# 2  C16.1n7c    C18.4n3 97.26
-# 3  C16.1n7c    C22.6n3 97.26
-# 4  C16.1n7c      OBCFA 97.26
-# 5     C16.0   C16.1n7c 97.26 <- diatom marker sensu Copeman et al. 
-# 6  C16.1n7c    C16.4n1 97.07
-# 7  C16.1n7c C20.1n9.7c 97.01
-# 8  C16.1n7c      C18.0 97.01
-# 9  C16.1n7c    C20.5n3 97.01
-# 10 C16.1n7c   C18.1n9c 97.01
-FVnMM_HP_LR8 = cbind(FVnMM_HP_LR7, FVnMM_HP_step8$logratios.top[,5])
-FVnMM_HP_NR8 = rbind(FVnMM_HP_NR7, FVnMM_HP_step8$ratios.top[5,])
-FVnMM_HP_R28 = c(FVnMM_HP_R27, FVnMM_HP_step8$R2.top[5])
+# FA1      FA2    R2
+# 1  C16.1n7c C22.1n9c 97.11
+# 2  C18.1n7c  C18.4n3 97.11
+# 3  C16.1n7c C20.4n6c 97.11
+# 4  C18.1n7c C22.1n9c 97.11
+# 5  C18.1n7c C20.4n6c 97.11
+# 6  C16.1n7c  C18.4n3 97.11
+# 7     C16.0 C16.1n7c 97.11  <- diatom marker sensu Copeman et al. 
+# 8     C16.0 C18.1n7c 97.11
+# 9  C18.1n7c    OBCFA 97.02
+# 10 C16.1n7c    OBCFA 97.02
+FVnMM_HP_LR8 = cbind(FVnMM_HP_LR7, FVnMM_HP_step8$logratios.top[,7])
+FVnMM_HP_NR8 = rbind(FVnMM_HP_NR7, FVnMM_HP_step8$ratios.top[7,])
+FVnMM_HP_R28 = c(FVnMM_HP_R27, FVnMM_HP_step8$R2.top[7])
 
 # > > > > Step 9 -----
 FVnMM_HP_step9 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR8)
 print.ratios(FVnMM_HP_step9$names.top, FVnMM_HP_step9$R2.top)
-# FA1      FA2    R2
-# 1     C20.5n3 C22.4n6c 98.23
-# 2       C18.0 C22.4n6c 98.23
-# 3    C18.1n9c C22.4n6c 98.23
-# 4  C20.1n9.7c C22.4n6c 98.23
-# 5    C20.4n6c C22.4n6c 98.19 <- ARA and Adrenic, elongation product
-# 6    C18.1n9t C22.4n6c 98.18
-# 7       C14.0 C22.4n6c 98.18
-# 8    C16.1n7c C22.4n6c 98.16
-# 9     C18.4n3 C22.4n6c 98.16
-# 10   C22.4n6c    OBCFA 98.16
-FVnMM_HP_LR9 = cbind(FVnMM_HP_LR8, FVnMM_HP_step9$logratios.top[,5])
-FVnMM_HP_NR9 = rbind(FVnMM_HP_NR8, FVnMM_HP_step9$ratios.top[5,])
-FVnMM_HP_R29 = c(FVnMM_HP_R28, FVnMM_HP_step9$R2.top[5])
+# FA1        FA2    R2
+# 1  C14.0   C22.6n3c 97.98
+# 2  C14.0   C16.1n7c 97.98 <- 14:0 associated with diatoms and prymnesiophytes, but 16:1n7 more diatom
+# 3  C14.0      C16.0 97.98
+# 4  C14.0   C20.4n6c 97.98
+# 5  C14.0    C18.4n3 97.98
+# 6  C14.0   C22.1n9c 97.98
+# 7  C14.0   C18.1n7c 97.98
+# 8  C14.0 C20.1n9.7c 97.98
+# 9  C14.0   C18.1n9c 97.98
+# 10 C14.0      C18.0 97.98
+FVnMM_HP_LR9 = cbind(FVnMM_HP_LR8, FVnMM_HP_step9$logratios.top[,2])
+FVnMM_HP_NR9 = rbind(FVnMM_HP_NR8, FVnMM_HP_step9$ratios.top[2,])
+FVnMM_HP_R29 = c(FVnMM_HP_R28, FVnMM_HP_step9$R2.top[2])
 
 # > > > > Step 10 -----
 FVnMM_HP_step10 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR9)
 print.ratios(FVnMM_HP_step10$names.top, FVnMM_HP_step10$R2.top)
 # FA1      FA2    R2
-# 1  C18.2n6c C20.4n6c 98.81
-# 2  C18.2n6c C22.4n6c 98.81
-# 3  C16.1n7c C18.2n6c 98.80 <- diatoms vs. greens
-# 4     C16.0 C18.2n6c 98.80
-# 5  C18.2n6c  C22.6n3 98.80
-# 6  C18.2n6c  C18.4n3 98.80
-# 7  C18.2n6c C22.1n9c 98.80
-# 8  C18.2n6c    OBCFA 98.80
-# 9  C18.2n6c  C22.5n3 98.80
-# 10    C14.0 C18.2n6c 98.80
-FVnMM_HP_LR10 = cbind(FVnMM_HP_LR9, FVnMM_HP_step10$logratios.top[,3])
-FVnMM_HP_NR10 = rbind(FVnMM_HP_NR9, FVnMM_HP_step10$ratios.top[3,])
-FVnMM_HP_R210 = c(FVnMM_HP_R29, FVnMM_HP_step10$R2.top[3])
+# 1     C20.5n3 C22.4n6c 98.84
+# 2       C18.0 C22.4n6c 98.84
+# 3    C18.1n9c C22.4n6c 98.84
+# 4  C20.1n9.7c C22.4n6c 98.84
+# 5  C20.1n9.7c C22.5n3c 98.82
+# 6     C20.5n3 C22.5n3c 98.82
+# 7       C18.0 C22.5n3c 98.82
+# 8    C18.1n9c C22.5n3c 98.82
+# 9     C16.4n1 C22.4n6c 98.82
+# 10      C16.0 C22.4n6c 98.81
 
-# > > > > Step 11 -----
-FVnMM_HP_step11 = STEP(data = ma_FVnMM_HPw, nsteps = 1, top = 10, previous = FVnMM_HP_LR10)
-print.ratios(FVnMM_HP_step11$names.top, FVnMM_HP_step11$R2.top)
-# FA1        FA2    R2
-# 1   C20.5n3   C22.1n9c 99.22
-# 2  C18.1n9c   C18.2n6c 99.22
-# 3     C18.0      OBCFA 99.22
-# 4     C18.0   C22.1n9c 99.22
-# 5  C16.1n7c   C18.1n9c 99.22
-# 6   C18.4n3 C20.1n9.7c 99.22
-# 7   C20.5n3      OBCFA 99.22
-# 8  C18.1n9c    C18.4n3 99.22
-# 9  C18.1n9c    C22.6n3 99.22
-# 10 C18.2n6c C20.1n9.7c 99.22
+# Stop here. Very little additional variation accounted and adrenic and DPA are not very informative
 
-# Stop here. Very little additional variation accounted.
-
-# > > > 3.2.2.3 : Organize step 10 LRs ----
-rownames(FVnMM_HP_NR10) = paste("Step", 1:10, sep="")
-colnames(FVnMM_HP_NR10) = c("FA1","FA2")
-FVnMM_HP_FR = as.data.frame(cbind(FVnMM_HP_NR10,
-                                  Ratio = paste(colnames(ma_FVnMM_HPw)[FVnMM_HP_NR10[,1]],
+# > > > 3.2.2.3 : Organize step 9 LRs ----
+rownames(FVnMM_HP_NR9) = paste("Step", 1:9, sep="")
+colnames(FVnMM_HP_NR9) = c("FA1","FA2")
+FVnMM_HP_FR = as.data.frame(cbind(FVnMM_HP_NR9,
+                                  Ratio = paste(colnames(ma_FVnMM_HPw)[FVnMM_HP_NR9[,1]],
                                                 "/",
-                                                colnames(ma_FVnMM_HPw)[FVnMM_HP_NR10[,2]],
+                                                colnames(ma_FVnMM_HPw)[FVnMM_HP_NR9[,2]],
                                                 sep="")))
-FVnMM_HP_FR$FA1_lab = colnames(ma_FVnMM_HPw)[FVnMM_HP_NR10[,1]]
-FVnMM_HP_FR$FA2_lab = colnames(ma_FVnMM_HPw)[FVnMM_HP_NR10[,2]]
-FVnMM_HP_FR$step = 1:10
+FVnMM_HP_FR$FA1_lab = colnames(ma_FVnMM_HPw)[FVnMM_HP_NR9[,1]]
+FVnMM_HP_FR$FA2_lab = colnames(ma_FVnMM_HPw)[FVnMM_HP_NR9[,2]]
+FVnMM_HP_FR$step = 1:9
 
-FVnMM_HP_FR$R2_cum = FVnMM_HP_R210
+FVnMM_HP_FR$R2_cum = FVnMM_HP_R29
 FVnMM_HP_FR = FVnMM_HP_FR |>
   arrange(step) |>
   mutate(R2 = R2_cum - lag(R2_cum,
@@ -3214,16 +3587,16 @@ FVnMM_HP_FR = FVnMM_HP_FR |>
 
 FVnMM_HP_FR
 
-# FVnMM_HP_FR_export = FVnMM_HP_FR
-# FVnMM_HP_FR_export$R2_cum = round(FVnMM_HP_FR_export$R2_cum, 3)
-# FVnMM_HP_FR_export$R2 = round(FVnMM_HP_FR_export$R2, 3)
-# FVnMM_HP_FR_export
-# write.csv(FVnMM_HP_FR_export, "CrabDTS_Table05_partial.csv")
+FVnMM_HP_FR_export = FVnMM_HP_FR
+FVnMM_HP_FR_export$R2_cum = round(FVnMM_HP_FR_export$R2_cum, 3)
+FVnMM_HP_FR_export$R2 = round(FVnMM_HP_FR_export$R2, 3)
+FVnMM_HP_FR_export
+write.csv(FVnMM_HP_FR_export, "CrabDTS_Table05_partial.csv")
 
-colnames(FVnMM_HP_LR10) = FVnMM_HP_FR[,3]
+colnames(FVnMM_HP_LR9) = FVnMM_HP_FR[,3]
 
-# FVnMM_HP_PiR = sort(unique(as.numeric(FVnMM_HP_NR10))) # "parts in ratios"
-FVnMM_HP_PiR = unique(as.numeric(t(FVnMM_HP_NR10))) # "parts in ratios"
+# FVnMM_HP_PiR = sort(unique(as.numeric(FVnMM_HP_NR9))) # "parts in ratios"
+FVnMM_HP_PiR = unique(as.numeric(t(FVnMM_HP_NR9))) # "parts in ratios"
 colnames(ma_FVnMM_HPw)[FVnMM_HP_PiR]
 
 # > > > 3.2.2.4 : Prep acyclic graph ----
@@ -3234,29 +3607,25 @@ FVnMM_HP_PiR_dim = data.frame(FA = colnames(ma_FVnMM_HPw)[FVnMM_HP_PiR],
                                        4, # C20.1n9.7c
                                        2, # C18.4n3
                                        1, # C22.1n9c
-                                       3, # C22.6n3
-                                       4, # OBCFA
-                                       2, # C16.0
                                        3, # C16.1n7c
+                                       2, # C18.1n7c
+                                       3, # C16.0
                                        1, # C20.4n6c
-                                       1, # C22.4n6c
-                                       4),# C18.2n6c
-                              dim2 = c(4, # C18.1n9c
-                                       4, # C20.5n3
-                                       4, # C18.0
-                                       4, # C20.1n9.7c
-                                       3, # C18.4n3
-                                       3, # C22.1n9c
-                                       3, # C22.6n3
-                                       3, # OBCFA
+                                       4), # C14.0
+                              dim2 = c(3, # C18.1n9c
+                                       3, # C20.5n3
+                                       3, # C18.0
+                                       3, # C20.1n9.7c
+                                       2, # C18.4n3
+                                       2, # C22.1n9c
+                                       1, # C16.1n7c
+                                       1, # C18.1n7c
                                        2, # C16.0
-                                       2, # C16.1n7c
-                                       2, # C20.4n6c
-                                       1, # C22.4n6c
-                                       2)) # C18.2n6c
+                                       1, # C20.4n6c
+                                       1)) # C14.0
 
 FVnMM_HP_PiR_dim$FA_labs = str_replace_all(FVnMM_HP_PiR_dim$FA,
-                                           FA_labeller)
+                                           FA_labeller_LIPIDMAPS)
 
 FVnMM_HP_FR = left_join(FVnMM_HP_FR,
                         FVnMM_HP_PiR_dim,
@@ -3266,7 +3635,7 @@ FVnMM_HP_FR = left_join(FVnMM_HP_FR,
                         by = c("FA2_lab" = "FA"))
 
 # > > > 3.2.2.5 : Prep PCA ----
-FVnMM_HP_PCA = PCA(FVnMM_HP_LR10, weight = FALSE)
+FVnMM_HP_PCA = PCA(FVnMM_HP_LR9, weight = FALSE)
 
 PLOT.PCA(FVnMM_HP_PCA,
          map = "contribution",
@@ -3325,7 +3694,7 @@ df_FVnMM_HP_arrows = data.frame(dim1 = FVnMM_HP_CRD_scale[ ,1],
                                 dim2 = FVnMM_HP_CRD_scale[, 2],
                                 LR = FVnMM_HP_PCA$colnames)
 
-df_FVnMM_HP_arrows$step = 1:10
+df_FVnMM_HP_arrows$step = 1:9
 
 df_FVnMM_HP_arrows$angle = 90 - ((atan2(df_FVnMM_HP_arrows$dim1,
                                         df_FVnMM_HP_arrows$dim2) *
@@ -3341,7 +3710,7 @@ df_FVnMM_HP_arrows$hjust = ifelse(df_FVnMM_HP_arrows$angle > 90,
 # Format arrow labels
 df_FVnMM_HP_arrows$labs = df_FVnMM_HP_arrows$LR
 df_FVnMM_HP_arrows$labs = str_replace_all(df_FVnMM_HP_arrows$labs,
-                                          FA_labeller)
+                                          FA_labeller_LIPIDMAPS)
 df_FVnMM_HP_arrows$labs = str_replace_all(df_FVnMM_HP_arrows$labs,
                                           "/",
                                           " / ")
@@ -3450,7 +3819,7 @@ scale_color_viridis_d(option = "magma",
                  sep=""),
        color = "Sex, Maturity") +
   coord_fixed(
-    xlim = c(-0.5, 0.4),
+    xlim = c(-0.55, 0.4),
     ylim = c(-0.25, 0.375)
   ) +
   theme_classic() +
@@ -3526,12 +3895,12 @@ plot_FVnMM_HP_PCA2 = ggplot() +
 #                  yend = FVnMM_HP_CRD_scale[ ,2]),
 #              color = "grey50",
 #              arrow = arrow(length = unit(0.2, "cm"))) +
-scale_color_viridis_d(option = "mako",
+scale_color_viridis_d(option = "turbo",
                       begin = 0.2,
                       end = 0.9,
                       direction = -1,
                       guide = "none",
-                      drop = FALSE) +
+                      drop = TRUE) +
   scale_shape_manual(values = c(17, 16),
                      labels = c("DTS", "FRZ"),
                      name = "Type",
@@ -3549,7 +3918,7 @@ scale_color_viridis_d(option = "mako",
        y = NULL,
        color = "Crab ID") +
   coord_fixed(
-    xlim = c(-0.5, 0.4),
+    xlim = c(-0.55, 0.4),
     ylim = c(-0.25, 0.375)
   ) +
   theme_classic() +
@@ -3572,7 +3941,6 @@ scale_color_viridis_d(option = "mako",
         axis.ticks.x.top = element_line(colour="grey50"),
         axis.line.y.right = element_line(colour="grey50"),
         axis.line.x.top = element_line(colour="grey50")) 
-
 plot_FVnMM_HP_PCA2
 
 # > > > > 3.2.2.6.3 : Baseplot with Vectors ----
@@ -3605,10 +3973,7 @@ plot_FVnMM_HP_PCA_base =
             data = df_FVnMM_HP_arrows) +
   scale_y_continuous(sec.axis = ~./vectorscale) +
   scale_x_continuous(sec.axis = ~./vectorscale) +
-  labs(x = paste("PC 1 (",
-                 round(FVnMM_HP_PCA_perc_1, 1),
-                 "%)",
-                 sep=""),
+  labs(x = NULL,
        # y = paste("PC 2 (",
        #           round(FVnMM_HP_PCA_perc_2, 1),
        #           "%)",
@@ -3616,7 +3981,7 @@ plot_FVnMM_HP_PCA_base =
        y = NULL,
        color = "Sex, Maturity") +
   coord_fixed(
-    xlim = c(-0.5, 0.4),
+    xlim = c(-0.55, 0.4),
     ylim = c(-0.25, 0.375)
   ) +
   theme_classic() +
@@ -3714,31 +4079,31 @@ plot_FVnMM_HP_LR_graph
 # dev.off()
 
 # > > > 3.2.2.9 : Univariate plot ----
-df_FVnMM_HP_LR10w = df_FVnMM_HPw[,1:4]
-df_FVnMM_HP_LR10w$SexDev = paste(df_FVnMM_HP_LR10w$Sex,
-                                 df_FVnMM_HP_LR10w$Dev,
+df_FVnMM_HP_LR9w = df_FVnMM_HPw[,1:4]
+df_FVnMM_HP_LR9w$SexDev = paste(df_FVnMM_HP_LR9w$Sex,
+                                 df_FVnMM_HP_LR9w$Dev,
                                  sep = "_")
 
-df_FVnMM_HP_LR10w$SexDev = factor(df_FVnMM_HP_LR10w$SexDev,
+df_FVnMM_HP_LR9w$SexDev = factor(df_FVnMM_HP_LR9w$SexDev,
                                   levels = c("F_imm",
                                              "F_mat",
                                              "M_imm"))
 
-df_FVnMM_HP_LR10w = cbind(df_FVnMM_HP_LR10w,
-                          FVnMM_HP_LR10)
+df_FVnMM_HP_LR9w = cbind(df_FVnMM_HP_LR9w,
+                          FVnMM_HP_LR9)
 
-df_FVnMM_HP_LR10 = df_FVnMM_HP_LR10w |>
-  pivot_longer(cols = 6:length(df_FVnMM_HP_LR10w),
+df_FVnMM_HP_LR9 = df_FVnMM_HP_LR9w |>
+  pivot_longer(cols = 6:length(df_FVnMM_HP_LR9w),
                names_to = "FAs",
                values_to = "LR")
 
-df_FVnMM_HP_LR10$FAs = str_replace_all(df_FVnMM_HP_LR10$FAs,
-                                       FA_labeller)
+df_FVnMM_HP_LR9$FAs = str_replace_all(df_FVnMM_HP_LR9$FAs,
+                                       FA_labeller_LIPIDMAPS)
 
-df_FVnMM_HP_LR10$FAs = factor(df_FVnMM_HP_LR10$FAs,
+df_FVnMM_HP_LR9$FAs = factor(df_FVnMM_HP_LR9$FAs,
                               levels = str_replace_all(FVnMM_HP_FR$Ratio,
-                                                       FA_labeller))
-df_FVnMM_HP_LR10_sum = df_FVnMM_HP_LR10 |>
+                                                       FA_labeller_LIPIDMAPS))
+df_FVnMM_HP_LR9_sum = df_FVnMM_HP_LR9 |>
   group_by(Type, SexDev, FAs) |>
   summarise(M = mean(LR),
             SD = sd(LR))
@@ -3756,7 +4121,7 @@ plot_FVnMM_HP_LR_cat = ggplot() +
                 width = 0,
                 alpha = 0.5,
                 position = position_dodge(0.5),
-                data = df_FVnMM_HP_LR10_sum) +
+                data = df_FVnMM_HP_LR9_sum) +
   geom_point(aes(x = SexDev,
                  color = Type,
                  y = M),
@@ -3764,13 +4129,13 @@ plot_FVnMM_HP_LR_cat = ggplot() +
              alpha = 0.5,
              shape = 9,
              position = position_dodge(0.5),
-             data = df_FVnMM_HP_LR10_sum) +
+             data = df_FVnMM_HP_LR9_sum) +
   geom_point(aes(x = SexDev,
                  y = LR,
                  color = Type),
              size = 0.5,
              position = position_dodge(0.5),
-             data = df_FVnMM_HP_LR10) +
+             data = df_FVnMM_HP_LR9) +
   scale_color_manual(values = c("firebrick",
                                 "dodgerblue")) +
   scale_x_discrete(labels = c("Female, imm.",
@@ -3781,8 +4146,8 @@ plot_FVnMM_HP_LR_cat = ggplot() +
                                          breaks = exp(labels_logratios$y),
                                          labels = labels_logratios$label,
                                          name = "Ratio"),
-                     limits = c(floor(min(df_FVnMM_HP_LR10$LR) / 0.5) * 0.5,
-                                ceiling(max(df_FVnMM_HP_LR10$LR) / 0.5) * 0.5)) +
+                     limits = c(floor(min(df_FVnMM_HP_LR9$LR) / 0.5) * 0.5,
+                                ceiling(max(df_FVnMM_HP_LR9$LR) / 0.5) * 0.5)) +
   labs(x = "Sex, Maturity",
        y = "Logratio",
        color = "Sample Type") +
@@ -3817,15 +4182,15 @@ plot_FVnMM_HP_LR_cat
 # > > > 3.2.2.10: PERMANOVA on LRs -----
 
 # Permutation structure
-FVnMM_LR10_perm = how(within = Within(type = "free"), # samples are free to shuffle within individual
+FVnMM_LR9_perm = how(within = Within(type = "free"), # samples are free to shuffle within individual
                       plots = 
-                        Plots(strata = df_FVnMM_HP_LR10w$Tag_no_Crab_ID, 
+                        Plots(strata = df_FVnMM_HP_LR9w$Tag_no_Crab_ID, 
                               type = "free"), # samples cannot shuffle across individual
                       nperm = 9999)
 
 # Check number of possible permutations
-numPerms(df_FVnMM_HP_LR10w,
-         FVnMM_LR10_perm)
+numPerms(df_FVnMM_HP_LR9w,
+         FVnMM_LR9_perm)
 
 # Run PERMANOVA
 # We include these terms to allow proper estimation of pseudo-F statistics,
@@ -3843,35 +4208,35 @@ numPerms(df_FVnMM_HP_LR10w,
 
 # We run it once to check our general structure. We do not use this output for
 # inference because we know the pseudo-Fs are not calculated how we want.
-FVnMM_LR10_PERMANOVA_base = adonis2(FVnMM_HP_LR10 ~ 
+FVnMM_LR9_PERMANOVA_base = adonis2(FVnMM_HP_LR9 ~ 
                                       Type +
                                       SexDev + # SexDev must come first, as its variation would be otherwise subsumed by Crab ID
                                       Tag_no_Crab_ID,
-                                    data = df_FVnMM_HP_LR10w,
+                                    data = df_FVnMM_HP_LR9w,
                                     method = "euclidean",
-                                    permutations = FVnMM_LR10_perm,
+                                    permutations = FVnMM_LR9_perm,
                                     by = "terms")
-FVnMM_LR10_PERMANOVA_base
+FVnMM_LR9_PERMANOVA_base
 
 set.seed(207)
 
-FVnMM_LR10_perms = rbind(1:nrow(df_FVnMM_HP_LR10w),
-                         shuffleSet(n = nrow(df_FVnMM_HP_LR10w),
-                                    control = FVnMM_LR10_perm,
+FVnMM_LR9_perms = rbind(1:nrow(df_FVnMM_HP_LR9w),
+                         shuffleSet(n = nrow(df_FVnMM_HP_LR9w),
+                                    control = FVnMM_LR9_perm,
                                     nset = 9999))
 
-FVnMM_LR10_PERMANOVA = matrix(nrow = nrow(FVnMM_LR10_perms),
+FVnMM_LR9_PERMANOVA = matrix(nrow = nrow(FVnMM_LR9_perms),
                               ncol = 5)
 
-colnames(FVnMM_LR10_PERMANOVA) = c("Type",
+colnames(FVnMM_LR9_PERMANOVA) = c("Type",
                                    "SexDev",
                                    "Tag_no_Crab_ID",
                                    "Residual",
                                    "Total")
 
-for (i in 1:nrow(FVnMM_LR10_perms)) {
-  df_temp = df_FVnMM_HP_LR10w[FVnMM_LR10_perms[i, ], ]
-  res_temp = adonis2(FVnMM_HP_LR10 ~ 
+for (i in 1:nrow(FVnMM_LR9_perms)) {
+  df_temp = df_FVnMM_HP_LR9w[FVnMM_LR9_perms[i, ], ]
+  res_temp = adonis2(FVnMM_HP_LR9 ~ 
                        Type +
                        SexDev + # SexDev must come first, as its variation would be otherwise subsumed by Crab ID
                        Tag_no_Crab_ID,
@@ -3879,22 +4244,22 @@ for (i in 1:nrow(FVnMM_LR10_perms)) {
                      by = "terms",
                      method = "euclidean",
                      permutations = 0)
-  FVnMM_LR10_PERMANOVA[i, ] = t(res_temp$SumOfSqs)
+  FVnMM_LR9_PERMANOVA[i, ] = t(res_temp$SumOfSqs)
 }
 
 # Calculate pseudo-Fs
-FVnMM_LR10_PERMANOVA = 
-  FVnMM_LR10_PERMANOVA |>
+FVnMM_LR9_PERMANOVA = 
+  FVnMM_LR9_PERMANOVA |>
   data.frame() |>
   mutate(F_Type = (Type / 1) / (Residual / 14),
          F_SexDev = (SexDev / 2) / (Tag_no_Crab_ID / 12))
 
 # Calculate p-values
-FVnMM_LR10_PERMANOVA$F_Type[1] # pseudo-F of data
-with(FVnMM_LR10_PERMANOVA, sum(F_Type >= F_Type[1]) / length(F_Type))
+FVnMM_LR9_PERMANOVA$F_Type[1] # pseudo-F of data
+with(FVnMM_LR9_PERMANOVA, sum(F_Type >= F_Type[1]) / length(F_Type))
 
-FVnMM_LR10_PERMANOVA$F_SexDev[1] # pseudo-F of data
-with(FVnMM_LR10_PERMANOVA, sum(F_SexDev >= F_SexDev[1]) / length(F_SexDev))
+FVnMM_LR9_PERMANOVA$F_SexDev[1] # pseudo-F of data
+with(FVnMM_LR9_PERMANOVA, sum(F_SexDev >= F_SexDev[1]) / length(F_SexDev))
 
 set.seed(NULL)
 
@@ -3939,7 +4304,7 @@ FA_arrows = FA_arrows * scalefactor
 # save those as a dataframe
 FA_arrows = as.data.frame(FA_arrows) 
 
-# Use onlyFA with over 5% representation for arrows:
+# Use only FA with over 5% representation for arrows:
 FA_arrows = FA_arrows[rownames(FA_arrows) %in% df_FVnMM_HP_list_5,]
 
 # FA arrow text formatting
@@ -3950,13 +4315,12 @@ arrow_angle = ifelse(arrow_angle > 90 & arrow_angle < 270,
 arrow_hjust = ifelse(arrow_angle > 90,
                      1,
                      0)
+
 FA_arrows$labs = as.character(rownames(FA_arrows))
-FA_arrows$labs = gsub("C", "", FA_arrows$labs)
-FA_arrows$labs = gsub("B", "", FA_arrows$labs)
-FA_arrows$labs = sub("c", "*c", FA_arrows$labs)
-FA_arrows$labs = sub("t", "*t", FA_arrows$labs)
-FA_arrows$labs = sub("\\.", ":", FA_arrows$labs)
-FA_arrows$labs = sub("n", "*omega*-", FA_arrows$labs)
+
+FA_arrows =
+  FA_arrows |>
+  mutate(labs = str_replace_all(labs, FA_labeller_LIPIDMAPS2))
 
 # Stress annotation
 fontfamily = "sans"
@@ -4120,12 +4484,12 @@ plot_FVnMM_HP_nMDS2 = ggplot()+
 #           parse = T,
 #           angle = arrow_angle,
 #           hjust = arrow_hjust) +
-scale_color_viridis_d(option = "mako",
+scale_color_viridis_d(option = "turbo",
                       begin = 0.2,
                       end = 0.9,
                       direction = -1,
                       guide = "none",
-                      drop = FALSE) +
+                      drop = TRUE) +
   scale_linetype_manual(values = c(1, 2),
                         labels = c("DTS", "FRZ"),
                         name = "Type") +
@@ -4170,7 +4534,7 @@ plot_FVnMM_HP_nMDS_base =
             color = "grey50",
             size = unit(2, "pt"),
             parse = T,
-            angle = arrow_angle,
+            # angle = arrow_angle,
             hjust = arrow_hjust) +
   theme_classic() +
   coord_fixed(xlim = c(-5.5, 3.75),
@@ -4341,7 +4705,7 @@ ggplot() +
                 width = 0,
                 alpha = 1,
                 position = position_dodge(0.5),
-                data = df_FVnMM_HP_LR10_sum[df_FVnMM_HP_LR10_sum$FAs == "Palmitic/Palmitoleic",]) +
+                data = df_FVnMM_HP_LR9_sum[df_FVnMM_HP_LR9_sum$FAs == "16:0/16:1(9)",]) +
   geom_point(aes(x = SexDev,
                  color = Type,
                  y = M),
@@ -4349,13 +4713,13 @@ ggplot() +
              alpha = 1,
              shape = 9,
              position = position_dodge(0.5),
-             data = df_FVnMM_HP_LR10_sum[df_FVnMM_HP_LR10_sum$FAs == "Palmitic/Palmitoleic",]) +
+             data = df_FVnMM_HP_LR9_sum[df_FVnMM_HP_LR9_sum$FAs == "16:0/16:1(9)",]) +
   geom_point(aes(x = SexDev,
                  y = LR,
                  color = Type),
              size = 1,
              position = position_dodge(0.5),
-             data = df_FVnMM_HP_LR10[df_FVnMM_HP_LR10$FAs == "Palmitic/Palmitoleic",]) +
+             data = df_FVnMM_HP_LR9[df_FVnMM_HP_LR9$FAs == "16:0/16:1(9)",]) +
   scale_color_manual(values = c("firebrick",
                                 "dodgerblue")) +
   scale_x_discrete(labels = c("Female, imm.",
@@ -4369,7 +4733,7 @@ ggplot() +
                      limits = c(floor(min(df_Copeman$LR_16.0_16.1n7) / 0.5) * 0.5,
                                 ceiling(max(df_Copeman$LR_16.0_16.1n7) / 0.5) * 0.5)) +
   labs(x = "Sex, Maturity",
-       y = "log(16:0 / 16:1ω7)",
+       y = "log(16:0/16:1(9))",
        color = "Sample Type",
        linetype = "Year") +
   theme_classic() +
